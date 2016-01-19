@@ -86,7 +86,8 @@ int process(jack_nframes_t nframes, void *arg){
         
         amp *= 0.9999;
         
-        // detect command completion
+        // detect command completion, and unlock the thread if
+        // complete.
         if(isCmdRunning && amp<0.1){
             isCmdRunning=false;
             pthread_mutex_unlock(&lock);
