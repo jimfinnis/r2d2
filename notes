@@ -1,0 +1,48 @@
+OK, here's how it should work. The little beastie should have hormones
+for each "emotion", and these should be primordial. Most of them are
+negative.
+
+In this simple case we make the following assumptions:
+1) the robot has an ongoing task (data collection, hoovering, whatever)
+2) the robot needs to charge ("hunger")
+[3) the robot has some kind of map, which is more accurate in some areas
+than others, and knows how accurate the map is in its locality]
+4) the robot has noxious stimuli, perhaps of two kinds - gradual
+unpleasantness and sudden shocks.
+
+FEAR: noxious stimuli detected. Released slowly, decays slowly
+[UNCERTAINTY (UNC): in an unmapped area - release moderate, decay moderate]
+PAIN: release rapid, decay rapid
+HUNGER: release slowly, decay rapid (comes from batt charge)
+HAPPY: doing the required job well. Release slowly, decay moderate
+BURBLE: constantly released very slowly, decays slowly
+
+Painful stimuli also release FEAR.
+
+The robot constantly checks the hormone levels, and if the highest level
+hormone is above a threshold it plays an appropriate sound and reduces
+that hormone level by some large percentage.
+
+
+Then all we do is have two threads. Thread 1 is performing the main code,
+updating the robot and doing what it needs to do, and updating the above
+levels. Thread 2 is a monophonic synth, doing the following:
+
+while true:
+    delay for very short while (~0.1s)
+    S = lock, fetch hormone set, unlock
+    [h,c] = maximum hormone in set and its concentration
+    if c>threshold:
+        play sound for hormone h (blocking)
+        lock, reduce hormone h, unlock
+
+
+Extensions:
+
+Some extras are combinations of the above using Zadeh's operators,
+treating the emotions as if they were fuzzy logic:
+
+Contentment: happy and very not hungry
+Bored: not happy and not hungry?
+Trepidation: a bit fearful and uncertain
+Brave: fearful and happy
