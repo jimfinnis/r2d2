@@ -10,14 +10,19 @@
 #include <math.h>
 #include <jack/jack.h>
 
+#include "WaveTableOsc.h"
+#include "SinOsc.h"
+
+SinOsc sosc1,sosc2;
+double *SinOsc::table=NULL;
+
 jack_port_t *output_port;
 
 // table of midi note "frequencies" adjusted by sample rate
 jack_default_audio_sample_t note_frqs[128]; 
 
-// this is the current offset into the wave, and is incremented
-// by the note "frequency" each sample. It's between -1 and 1.
-jack_default_audio_sample_t ramp=0.0;
+// sample rate 
+double samprate = 0;
 
 // various other globals
 jack_default_audio_sample_t amp=0.0;
@@ -34,21 +39,11 @@ pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 // to the process() thread
 int cmdPending=0;
 
-// calculates note "frequencies" for all midi notes; called on init
-// and rate change
-void calc_note_frqs(jack_default_audio_sample_t srate)
-{
-    int i;
-    for(i=0; i<128; i++)
-    {
-        note_frqs[i] = (2.0 * 440.0 / 32.0) * pow(2, (((jack_default_audio_sample_t)i - 9.0) / 12.0)) / srate;
-    }
-}
-
 /*
  * JACK callbacks
  */
 
+double note=440;
 
 int process(jack_nframes_t nframes, void *arg){
     // set when we are running a command and reset when it ends.
@@ -67,6 +62,7 @@ int process(jack_nframes_t nframes, void *arg){
             amp=1;
             isCmdRunning=true;
             cmdPending=0; // remove command
+            note = (rand()%300)+200;
         } else {
             // note that if a command was received,
             // we keep the lock until the command completes
@@ -78,11 +74,14 @@ int process(jack_nframes_t nframes, void *arg){
     
     // make noises
     for(int i=0;i<nframes;i++){
-        out[i] = 0.1*sin(2*M_PI*ramp)*amp;
+        sosc1.setFrequency(note*1.7);
+        sosc2.setFrequency(note);
+        sosc2.setPM(sosc1.get()*0.1);
         
-        // increment and clip the offset
-        ramp += note_frqs[80];
-        ramp = (ramp > 1.0) ? ramp - 2.0 : ramp;
+        sosc1.update();
+        sosc2.update();
+        
+        out[i] = sosc2.get()*amp*0.2;
         
         amp *= 0.9999;
         
@@ -107,7 +106,7 @@ void jack_shutdown(void *arg)
 int srate(jack_nframes_t nframes, void *arg)
 {
     printf("the sample rate is now %" PRIu32 "/sec\n", nframes);
-    calc_note_frqs((jack_default_audio_sample_t)nframes);
+    samprate = nframes;
     return 0;
 }
 
@@ -133,21 +132,21 @@ void cmd(int x){
 int main(int argc,char *argv[]){
     jack_client_t *client;
     
+    
     // create a mutex used to pass data from main thread to process
     // thread and vice versa.
 
-    if (!(client = jack_client_open("midisine", JackNullOption, NULL))){
+    if (!(client = jack_client_open("r2d2", JackNullOption, NULL))){
         fprintf(stderr, "jack server not running?\n");
         return 1;
     }
-    
-    // set up the note table
-    calc_note_frqs(jack_get_sample_rate(client));
     
     // set callbacks
     jack_set_process_callback(client, process, 0);
     jack_set_sample_rate_callback(client, srate, 0);
     jack_on_shutdown(client, jack_shutdown, 0);
+    
+    samprate = (double)jack_get_sample_rate(client);
     
     output_port = jack_port_register(
                                      client, 
@@ -159,10 +158,13 @@ int main(int argc,char *argv[]){
         return 1;
     }
     
+    jack_connect(client,"r2d2:r2d2","system:playback_1");
+    jack_connect(client,"r2d2:r2d2","system:playback_2");
+    
     printf("Active.\n");
     while(1){
         cmd(1);
-        sleep(5);
+        sleep(1);
     }
     
     jack_client_close(client);
