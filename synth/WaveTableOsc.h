@@ -22,7 +22,7 @@
 #ifndef Test_WaveTableOsc_h
 #define Test_WaveTableOsc_h
 
-#include <math.h>
+#include "gen.h"
 
 #define doLinearInterp 1
 
@@ -34,7 +34,7 @@ typedef struct {
 
 const int numWaveTableSlots = 32;
 
-class WaveTableOsc {
+class WaveTableOsc : public Gen {
 protected:
     double phasor;      // phase accumulator
     double phaseInc;    // phase increment
@@ -43,12 +43,13 @@ protected:
     // list of wavetables
     int numWaveTables;
     waveTable waveTables[numWaveTableSlots];
+    int addWaveTable(int len, float *waveTableIn, double topFreq);
     float makeWaveTable(int len, double *ar, double *ai, double scale, double topFreq);
     void fillTables(double *freqWaveRe, double *freqWaveIm, int numSamples);
     
 public:
     WaveTableOsc(void);
-    ~WaveTableOsc(void);
+    virtual ~WaveTableOsc(void);
     
     // INITIALIZERS
     
@@ -58,10 +59,7 @@ public:
     
     void setFrequency(double inc);
     void setPhaseOffset(double offset);
-    void update(void);
-    float get(void);
-    float getMinusOffset(void);
-    int addWaveTable(int len, float *waveTableIn, double topFreq);
+    virtual float update();
     
     
 };
@@ -76,13 +74,6 @@ inline void WaveTableOsc::setFrequency(double inc) {
 // note: if you don't keep this in the range of 0-1, you'll need to make changes elsewhere
 inline void WaveTableOsc::setPhaseOffset(double offset) {
     phaseOfs = offset;
-}
-
-inline void WaveTableOsc::update() {
-    phasor += phaseInc;
-    
-    if (phasor >= 1.0)
-        phasor -= 1.0;
 }
 
 #endif

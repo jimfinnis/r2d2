@@ -1,0 +1,10 @@
+# standard symbols
+
+*e      :   T_END
+*s      :   T_STRING
+*i      :   T_IDENT
+*n      :   T_INT
+*f      :   T_FLOAT
+
+*c,     :   T_COMMA
+*c;     :   T_SEMICOLON

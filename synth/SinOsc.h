@@ -7,9 +7,11 @@
 #ifndef __SINOSC_H
 #define __SINOSC_H
 
+#include "gen.h"
+
 #define SINETABLESIZE 2048
 
-class SinOsc {
+class SinOsc : public Gen {
 private:
     static double *table;
     double phaseacc;
@@ -42,14 +44,12 @@ public:
         phasemod = f;
     }
     
-    void update(){
+    virtual float update() {
         phaseacc += freq;
         phase = phaseacc + phasemod;
         if(phase>1.0)phase -= 1.0;
         if(phase>1.0)phase -= 1.0;
-    }
-    
-    double get(){
+            
         int x = phase*SINETABLESIZE;
         x %= SINETABLESIZE;
         return table[x];

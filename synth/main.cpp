@@ -10,11 +10,7 @@
 #include <math.h>
 #include <jack/jack.h>
 
-#include "WaveTableOsc.h"
-#include "SinOsc.h"
-
-SinOsc sosc1,sosc2;
-double *SinOsc::table=NULL;
+#include "parser.h"
 
 jack_port_t *output_port;
 
@@ -37,18 +33,16 @@ pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
 // this is the command data, which sends commands from the main program
 // to the process() thread
-int cmdPending=0;
+Synth *cmdPending=NULL;
 
 /*
  * JACK callbacks
  */
 
-double note=440;
-
 int process(jack_nframes_t nframes, void *arg){
     // set when we are running a command and reset when it ends.
     // ONLY USED IN THIS THREAD.
-    static bool isCmdRunning=false;
+    static Synth *cmdRunning=NULL;
     
     jack_default_audio_sample_t *out = 
           (jack_default_audio_sample_t *)jack_port_get_buffer(output_port,
@@ -58,11 +52,9 @@ int process(jack_nframes_t nframes, void *arg){
     if(pthread_mutex_trylock(&lock)==0){
         // process pending command here. Currently the only command is
         // "bip"
-        if(cmdPending==1){
-            amp=1;
-            isCmdRunning=true;
-            cmdPending=0; // remove command
-            note = (rand()%300)+200;
+        if(cmdPending){
+            cmdRunning=cmdPending;
+            cmdPending=NULL; 
         } else {
             // note that if a command was received,
             // we keep the lock until the command completes
@@ -71,29 +63,24 @@ int process(jack_nframes_t nframes, void *arg){
         
     }
     
-    
     // make noises
     for(int i=0;i<nframes;i++){
-        sosc1.setFrequency(note*1.7);
-        sosc2.setFrequency(note);
-        sosc2.setPM(sosc1.get()*0.1);
-        
-        sosc1.update();
-        sosc2.update();
-        
-        out[i] = sosc2.get()*amp*0.2;
-        
-        amp *= 0.9999;
-        
-        // detect command completion, and unlock the thread if
-        // complete.
-        if(isCmdRunning && amp<0.1){
-            isCmdRunning=false;
-            pthread_mutex_unlock(&lock);
+        if(cmdRunning){
+            out[i] = cmdRunning->update();
+            // detect command completion, and unlock the thread if
+            // complete.
+            if( cmdRunning->done){
+                Synth *n = cmdRunning->next;
+                delete cmdRunning;
+                cmdRunning=n; // run next (if there is one)
+                if(!cmdRunning) // if not, unlock.
+                    pthread_mutex_unlock(&lock);
+            }
+        }else{
+            out[i]=0;
         }
-            
-        
     }
+        
     return 0;
 }
 
@@ -116,14 +103,15 @@ int srate(jack_nframes_t nframes, void *arg)
  * Main program
  */
 
-
+Parser parser;
 
 // send commands to the process. Will block until the process thread
 // has completed any command.
-void cmd(int x){
+void cmd(const char *buf){
+    Synth *s = parser.parse(buf);
     printf("Waiting for lock..\n");
     pthread_mutex_lock(&lock);
-    cmdPending=x;
+    cmdPending=s;
     pthread_mutex_unlock(&lock);
     printf("Command sent..\n");
 }
@@ -163,7 +151,7 @@ int main(int argc,char *argv[]){
     
     printf("Active.\n");
     while(1){
-        cmd(1);
+        cmd("beep 440;beep 220;beep 1302;beep 1212;beep 554;beep 832;beep 100");
         sleep(1);
     }
     

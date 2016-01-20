@@ -68,24 +68,22 @@ int WaveTableOsc::addWaveTable(int len, float *waveTableIn, double topFreq) {
 
 
 //
-// get
+// update
 //
-// returns the current oscillator output
-//
-float WaveTableOsc::get() {
+float WaveTableOsc::update(){
     // grab the appropriate wavetable
     int waveTableIdx = 0;
-    while ((this->phaseInc >= this->waveTables[waveTableIdx].topFreq) && (waveTableIdx < (this->numWaveTables - 1))) {
+    while ((phaseInc >= waveTables[waveTableIdx].topFreq) && (waveTableIdx < (numWaveTables - 1))) {
         ++waveTableIdx;
     }
-    waveTable *waveTable = &this->waveTables[waveTableIdx];
-
+    waveTable *waveTable = &waveTables[waveTableIdx];
+    
 #if !doLinearInterp
     // truncate
-    return waveTable->waveTable[int(this->phasor * waveTable->waveTableLen)];
+    float out =  waveTable->waveTable[int(phasor * waveTable->waveTableLen)];
 #else
     // linear interpolation
-    double temp = this->phasor * waveTable->waveTableLen;
+    double temp = phasor * waveTable->waveTableLen;
     int intPart = temp;
     double fracPart = temp - intPart;
     float samp0 = waveTable->waveTable[intPart];
@@ -93,58 +91,15 @@ float WaveTableOsc::get() {
         intPart = 0;
     float samp1 = waveTable->waveTable[intPart];
     
-    return samp0 + (samp1 - samp0) * fracPart;
+    float out = samp0 + (samp1 - samp0) * fracPart;
 #endif
-}
-
-
-//
-// getMinusOffset
-//
-// for variable pulse width: initialize to sawtooth,
-// set phaseOfs to duty cycle, use this for osc output
-//
-// returns the current oscillator output
-//
-float WaveTableOsc::getMinusOffset() {
-    // grab the appropriate wavetable
-    int waveTableIdx = 0;
-    while ((this->phaseInc >= this->waveTables[waveTableIdx].topFreq) && (waveTableIdx < (this->numWaveTables - 1))) {
-        ++waveTableIdx;
-    }
-    waveTable *waveTable = &this->waveTables[waveTableIdx];
     
-#if !doLinearInterp
-    // truncate
-    double offsetPhasor = this->phasor + this->phaseOfs;
-    if (offsetPhasor >= 1.0)
-        offsetPhasor -= 1.0;
-    return waveTable->waveTable[int(this->phasor * waveTable->waveTableLen)] - waveTable->waveTable[int(offsetPhasor * waveTable->waveTableLen)];
-#else
-    // linear
-    double temp = this->phasor * waveTable->waveTableLen;
-    int intPart = temp;
-    double fracPart = temp - intPart;
-    float samp0 = waveTable->waveTable[intPart];
-    if (++intPart >= waveTable->waveTableLen)
-        intPart = 0;
-    float samp1 = waveTable->waveTable[intPart];
-    float samp = samp0 + (samp1 - samp0) * fracPart;
+    phasor += phaseInc;
     
-    // and linear again for the offset part
-    double offsetPhasor = this->phasor + this->phaseOfs;
-    if (offsetPhasor > 1.0)
-        offsetPhasor -= 1.0;
-    temp = offsetPhasor * waveTable->waveTableLen;
-    intPart = temp;
-    fracPart = temp - intPart;
-    samp0 = waveTable->waveTable[intPart];
-    if (++intPart >= waveTable->waveTableLen)
-        intPart = 0;
-    samp1 = waveTable->waveTable[intPart];
+    if (phasor >= 1.0)
+        phasor -= 1.0;
     
-    return samp - (samp0 + (samp1 - samp0) * fracPart);
-#endif
+    return out;
 }
 
 //
@@ -156,14 +111,14 @@ float WaveTableOsc::getMinusOffset() {
 //
 static void fft(int N, double *ar, double *ai)
 /*
- in-place complex fft
- 
- After Cooley, Lewis, and Welch; from Rabiner & Gold (1975)
- 
- program adapted from FORTRAN 
- by K. Steiglitz  (ken@princeton.edu)
- Computer Science Dept. 
- Princeton University 08544          */
+   in-place complex fft
+   
+   After Cooley, Lewis, and Welch; from Rabiner & Gold (1975)
+   
+   program adapted from FORTRAN 
+   by K. Steiglitz  (ken@princeton.edu)
+   Computer Science Dept. 
+   Princeton University 08544          */
 {    
     int i, j, k, L;            /* indexes */
     int M, TEMP, LE, LE1, ip;  /* M = log N */
@@ -249,7 +204,7 @@ float WaveTableOsc::makeWaveTable( int len, double *ar, double *ai, double scale
     float wave[len];
     for (int idx = 0; idx < len; idx++)
         wave[idx] = ai[idx] * scale;
-        
+    
     if (addWaveTable(len, wave, topFreq))
         scale = 0.0;
     
@@ -267,8 +222,8 @@ void WaveTableOsc::fillTables(double *freqWaveRe, double *freqWaveIm, int numSam
     int maxHarmonic = numSamples >> 1;
     const double minVal = 0.000001; // -120 dB
     while ((fabs(freqWaveRe[maxHarmonic]) + fabs(freqWaveIm[maxHarmonic]) < minVal)
-        && maxHarmonic) --maxHarmonic;
-
+           && maxHarmonic) --maxHarmonic;
+    
     // calculate topFreq for the initial wavetable
     // maximum non-aliasing playback rate is 1 / (2 * maxHarmonic), but we allow
     // aliasing up to the point where the aliased harmonic would meet the next
@@ -292,7 +247,7 @@ void WaveTableOsc::fillTables(double *freqWaveRe, double *freqWaveIm, int numSam
         
         // make the wavetable
         scale = makeWaveTable(numSamples, ar, ai, scale, topFreq);
-
+        
         // prepare for next table
         topFreq *= 2;
         maxHarmonic >>= 1;
@@ -354,7 +309,7 @@ void WaveTableOsc::waveOsc(double *waveSamples, int tableLen) {
         freqWaveRe[idx] = 0.0;
     }
     fft(tableLen, freqWaveRe, freqWaveIm);
-
+    
     // build the wavetable oscillator
     fillTables(freqWaveRe, freqWaveIm, tableLen);
     
