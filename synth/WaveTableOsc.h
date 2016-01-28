@@ -59,7 +59,7 @@ public:
     
     void setFrequency(double inc);
     void setPhaseOffset(double offset);
-    virtual float update();
+    virtual void update(int nframes);
     
     
 };

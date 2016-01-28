@@ -70,36 +70,38 @@ int WaveTableOsc::addWaveTable(int len, float *waveTableIn, double topFreq) {
 //
 // update
 //
-float WaveTableOsc::update(){
-    // grab the appropriate wavetable
-    int waveTableIdx = 0;
-    while ((phaseInc >= waveTables[waveTableIdx].topFreq) && (waveTableIdx < (numWaveTables - 1))) {
-        ++waveTableIdx;
-    }
-    waveTable *waveTable = &waveTables[waveTableIdx];
+void WaveTableOsc::update(int nframes){
     
+    for(int i=0;i<nframes;i++){
+        // grab the appropriate wavetable
+        int waveTableIdx = 0;
+        while ((phaseInc >= waveTables[waveTableIdx].topFreq) && (waveTableIdx < (numWaveTables - 1))) {
+            ++waveTableIdx;
+        }
+        waveTable *waveTable = &waveTables[waveTableIdx];
+        
 #if !doLinearInterp
-    // truncate
-    float out =  waveTable->waveTable[int(phasor * waveTable->waveTableLen)];
+        // truncate
+        out[i]=  waveTable->waveTable[int(phasor * waveTable->waveTableLen)];
 #else
-    // linear interpolation
-    double temp = phasor * waveTable->waveTableLen;
-    int intPart = temp;
-    double fracPart = temp - intPart;
-    float samp0 = waveTable->waveTable[intPart];
-    if (++intPart >= waveTable->waveTableLen)
-        intPart = 0;
-    float samp1 = waveTable->waveTable[intPart];
-    
-    float out = samp0 + (samp1 - samp0) * fracPart;
+        // linear interpolation
+        double temp = phasor * waveTable->waveTableLen;
+        int intPart = temp;
+        double fracPart = temp - intPart;
+        float samp0 = waveTable->waveTable[intPart];
+        if (++intPart >= waveTable->waveTableLen)
+            intPart = 0;
+        float samp1 = waveTable->waveTable[intPart];
+        
+        out[i] = samp0 + (samp1 - samp0) * fracPart;
 #endif
-    
-    phasor += phaseInc;
-    
-    if (phasor >= 1.0)
-        phasor -= 1.0;
-    
-    return out;
+        
+        phasor += phaseInc;
+        
+        if (phasor >= 1.0)
+            phasor -= 1.0;
+    }
+    scaleOut(nframes);
 }
 
 //

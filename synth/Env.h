@@ -11,45 +11,75 @@ inline float lerp(float a,float b,float t){
     return (1.0f-t)*a + t*b;
 }
 
+// number of points in envelope
+#define ENVPOINTS 5
+
+/// env generator. Call setlev/settime to fill the array, then call prep().
+/// Call reset to rewind the generator if required.
+
 class Env : public Gen {
-    float a,d,s,r; // these are all times, there is no gate
-    float sl; // sustain level
+    double levels[ENVPOINTS]; // level at time t
+    double times[ENVPOINTS];  // time before level t since last level
+    double acctimes[ENVPOINTS];// time of each level (since start of env)
+    int nlevs;
+    
+    // the next level we are waiting for
+    int nextlev;
+    // current time
     float time;
 public:
-    bool done;
-    void set(float _a,float _d,float _s,float _r,float _sl){
-        time=0;
-        done=false;
-        
-        a=_a;
-        if(a<0.001)a=0.001;
-        d=_d;
-        if(d<0.001)d=0.001;
-        s=_s;
-        if(s<0.001)s=0.001;
-        r=_r;
-        if(r<0.001)r=0.001;
-        sl=_sl;
+    
+    Env(){
+        nlevs=0;
     }
     
-    virtual float update(){
-        extern double samprate;
-        float t=time;
-        time += 1.0/samprate;
-        if(t<a){
-            t = t/a;
-        } else if(t<(a+d)){
-            t = (t-a)/d;
-            t = lerp(1,sl,t);
-        } else if(t<(a+d+s)){
-            t = sl;
-        } else if(t<(a+d+s+r)){
-            t = (t-(a+d+s))/r;
-            t = lerp(sl,0,t);
-        } else {
-            t=0; done=true;
+    void reset(){
+        time=0;
+        nextlev=0;
+        done=false;
+    }
+    
+    void addstage(float time,float lev){
+        times[nlevs]=time;
+        levels[nlevs++]=lev;
+    }
+    
+    // call after setlev/settime calls
+    void prep(){
+        // accumulate times
+        acctimes[0]=times[0];
+        for(int i=1;i<nlevs;i++){
+            if(times[i]<0.001)times[i]=0.001;
+            acctimes[i]=acctimes[i-1]+times[i];
         }
-        return t;
+        reset();
+    }
+    
+    virtual void update(int nframes){
+        extern double samprate;
+        double step = 1.0/samprate;
+        
+        for(int i=0;i<nframes;i++){
+            time += step;
+            if(time<acctimes[0])
+                out[i]=levels[0];
+            else if(nextlev<0){ // finished
+                out[i]=levels[nlevs-1];
+                done=true;
+            } else {
+                if(time>acctimes[nextlev]){
+                    nextlev++;
+                    if(nextlev==nlevs){
+                        out[i]=levels[nlevs-1];
+                        nextlev=-1;
+                        continue;
+                    }
+                }
+                out[i] = lerp(levels[nextlev-1],levels[nextlev],
+                              (time-acctimes[nextlev-1])/times[nextlev]);
+            }
+        }
+        scaleOut(nframes);
     }
 };
 

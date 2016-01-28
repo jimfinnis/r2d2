@@ -64,19 +64,23 @@ int process(jack_nframes_t nframes, void *arg){
     }
     
     // make noises
-    for(int i=0;i<nframes;i++){
-        if(cmdRunning){
-            out[i] = cmdRunning->update();
-            // detect command completion, and unlock the thread if
-            // complete.
-            if( cmdRunning->done){
-                Synth *n = cmdRunning->next;
-                delete cmdRunning;
-                cmdRunning=n; // run next (if there is one)
-                if(!cmdRunning) // if not, unlock.
-                    pthread_mutex_unlock(&lock);
-            }
-        }else{
+    if(cmdRunning){
+        cmdRunning->update(nframes);
+        double *outbuf = cmdRunning->getout();
+        for(int i=0;i<nframes;i++){
+            out[i] = outbuf[i];
+        }
+        // detect command completion, and unlock the thread if
+        // complete.
+        if( cmdRunning->done){
+            Synth *n = cmdRunning->next;
+            delete cmdRunning;
+            cmdRunning=n; // run next (if there is one)
+            if(!cmdRunning) // if not, unlock.
+                pthread_mutex_unlock(&lock);
+        }
+    } else {
+        for(int i=0;i<nframes;i++){
             out[i]=0;
         }
     }
@@ -119,7 +123,6 @@ void cmd(const char *buf){
 
 int main(int argc,char *argv[]){
     jack_client_t *client;
-    
     
     // create a mutex used to pass data from main thread to process
     // thread and vice versa.

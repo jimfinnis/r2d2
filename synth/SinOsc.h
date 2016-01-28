@@ -11,18 +11,26 @@
 
 #define SINETABLESIZE 2048
 
+// inputs 
+#define SINOSC_AMP 0
+#define SINOSC_PM 1
+#define SINOSC_FM 2
+
 class SinOsc : public Gen {
 private:
     static double *table;
     double phaseacc;
     double phase;
     double freq; // actually freq/samprate
-    double phasemod;
+    double pmamount; // amount of phase mod
+    double fmamount; // amount of freq mod
+    
 public:
     
     SinOsc(){
         phaseacc=0;
-        phasemod=0;
+        pmamount=0.1;
+        fmamount=0.1;
         setFrequency(440);
         if(!table){
             table = new double[SINETABLESIZE];
@@ -38,26 +46,36 @@ public:
         freq = f/samprate;
     }
     
-    // set phase modulation value to be added to phase at
-    // next update
-    void setPM(double f){
-        phasemod = f;
+    void setPM(double m){
+        pmamount = m;
     }
     
-    virtual float update() {
-        phaseacc += freq;
-        phase = phaseacc + phasemod;
-        if(phase>1.0)phase -= 1.0;
-        if(phase>1.0)phase -= 1.0;
+    void setFM(double m){
+        fmamount = m*0.01; // should be really tiny
+    }
+    
+    virtual void update(int nframes){
+        double *amp = ins[SINOSC_AMP];
+        double *pm = ins[SINOSC_PM];
+        double *fm = ins[SINOSC_FM];
+        
+        for(int i=0;i<nframes;i++){
             
-        int x = phase*SINETABLESIZE;
-        x %= SINETABLESIZE;
-        return table[x];
+            double ifreq = freq + (fm?fm[i]*fmamount:0.0);
+            phaseacc += ifreq;
+            if(phaseacc>1.0)phaseacc -= 1.0;
+            if(phaseacc>1.0)phaseacc -= 1.0;
+            double iphase = phaseacc + (pm?pm[i]*pmamount:0.0);
+            int x = iphase*SINETABLESIZE;
+            x %= SINETABLESIZE;
+            out[i]=table[x] * (amp?amp[i]:1.0);
+        }
+        scaleOut(nframes);
     }
 };
-    
-    
-    
-        
+
+
+
+
 
 #endif /* __SINOSC_H */

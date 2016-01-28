@@ -19,9 +19,16 @@ BURBLE: constantly released very slowly, decays slowly
 
 Painful stimuli also release FEAR.
 
+These hormones cascade - singly and directly - into corresponding
+"sound urge" hormones.
+
 The robot constantly checks the hormone levels, and if the highest level
 hormone is above a threshold it plays an appropriate sound and reduces
-that hormone level by some large percentage.
+that sound hormone level by some large percentage - leaving the actual
+primary hormone untouched. The intuition here is that the urge to make
+a sound is secondary to and triggered by the underlying neurochemical state,
+and that succumbing to the urge relieves it without modifying the underlying
+state.
 
 
 Then all we do is have two threads. Thread 1 is performing the main code,
