@@ -9,7 +9,7 @@ include_directories(${JACK_INCLUDE_DIR} ${CMAKE_BINARY_DIR} .)
 add_definitions(${JACK_DEFINITIONS})
 
 set(SOURCES main.cpp WaveTableOsc.cpp tokeniser.cpp tokens.cpp
-    parser.cpp)
+    parser.cpp synthdef.cpp)
 
 add_custom_command(
     OUTPUT tokens.cpp tokens.h

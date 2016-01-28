@@ -8,3 +8,10 @@
 
 *c,     :   T_COMMA
 *c;     :   T_SEMICOLON
+*c-     :   T_MINUS
+
+newsynth : T_NEWSYNTH
+modsynth : T_MODSYNTH
+g : T_G
+p : T_P
+

@@ -57,6 +57,11 @@ public:
     void sawOsc();
     void sinOsc();// don't use, it's pointless :)
     
+    virtual bool setParam(const char *k,const char *v){
+        if(!strcmp("freq",k))setFrequency(atof(v));
+        else return Gen::setParam(k,v);
+    }
+    
     void setFrequency(double inc);
     void setPhaseOffset(double offset);
     virtual void update(int nframes);

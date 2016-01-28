@@ -7,12 +7,14 @@
 #ifndef __ENV_H
 #define __ENV_H
 
+#include "ctype.h"
+
 inline float lerp(float a,float b,float t){
     return (1.0f-t)*a + t*b;
 }
 
 // number of points in envelope
-#define ENVPOINTS 5
+#define ENVPOINTS 10
 
 /// env generator. Call setlev/settime to fill the array, then call prep().
 /// Call reset to rewind the generator if required.
@@ -39,9 +41,16 @@ public:
         done=false;
     }
     
-    void addstage(float time,float lev){
-        times[nlevs]=time;
-        levels[nlevs++]=lev;
+    virtual bool setParam(const char *k,const char *v){
+        if(isdigit(k[1])){
+            int lev = k[1]-'0';
+            if(lev>=nlevs)nlevs=lev+1;
+            if(k[0]=='t')
+                times[lev]=atof(v);
+            else if(k[0]=='l')
+                levels[lev]=atof(v);
+        }
+        else return Gen::setParam(k,v);
     }
     
     // call after setlev/settime calls

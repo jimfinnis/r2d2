@@ -11,6 +11,7 @@
 #ifndef __SYNTH_H
 #define __SYNTH_H
 
+#include <stdio.h>
 #include "gen.h"
 
 class Synth  {

@@ -9,10 +9,17 @@
 
 #include "synth.h"
 #include "tokeniser.h"
+#include "tokens.h"
+#include "exceptions.h"
 
 class Parser {
 private:
     Tokeniser tok;
+    std::string getnextident(){
+        if(tok.getnext()!=T_IDENT)
+            throw SyntaxException();
+        return std::string(tok.getstring());
+    }
     Synth *parseSynth();
 public:
     Parser();

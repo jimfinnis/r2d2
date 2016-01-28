@@ -41,6 +41,12 @@ public:
         }
     }
     
+    virtual bool setParam(const char *k,const char *v){
+        if(!strcmp("freq",k))setFrequency(atof(v));
+        if(!strcmp("pm",k))setPM(atof(v));
+        if(!strcmp("fm",k))setFM(atof(v));
+        else return Gen::setParam(k,v);
+    }
     void setFrequency(double f){
         extern double samprate;
         freq = f/samprate;

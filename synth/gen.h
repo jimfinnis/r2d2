@@ -9,6 +9,8 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
+
 #define MAXFRAMESIZE 1024
 #define MAXINPUTS 4
 
@@ -38,13 +40,20 @@ public:
         for(int i=0;i<nframes;i++)
             out[i]=masterAmp*out[i];
     }
-              
     
-    // set input N to be the output of gen G
-    void setin(int n,Gen *g){
-        ins[n] = g->out;
+    /// set a named parameter inside the gen, done by the SynthDef.
+    /// Returns false if there is no such param, which is a bit duff -
+    /// I'd rather do the checking at parse time, not build time.
+    /// Overriden to do more in each gen.
+    virtual bool setParam(const char *k,const char *v){
+        if(!strcmp(k,"amp")){
+            masterAmp=atof(v);
+            return true;
+        }
+        else return false;
     }
-    
+        
+              
     // assumes that any inputs are filled with data, and writes
     // to the output buffer
     virtual void update(int nframes) = 0;
@@ -57,6 +66,10 @@ public:
     bool done;
     // true if the gen is a done monitor (see synth)
     bool isDoneMon;
+    
+    int getInputByName(const char *s){
+        return 0;
+    }
 };
 
 
@@ -73,9 +86,11 @@ public:
         }
     }
     
-    void setins(Gen *g1,double a1,Gen *g2,double a2){
-        setin(0,g1); amp1=a1;
-        setin(1,g2); amp2=a2;
+    virtual bool setParam(const char *k,const char *v){
+        if(!strcmp("amp1",k))amp1=atof(v);
+        else if(!strcmp("amp1",k))amp2=atof(v);
+        else return Gen::setParam(k,v);
+        return true;
     }
 };
           
