@@ -2,9 +2,20 @@
 Some code inspired by a facebook conversation - a hormonal robot which uses R2D2-esque beeps to indicate its status. See the "notes" textfile for more information.
 
 ## Synth system
-This is a jackd client implementing a blocking monosynth (since R2 is monophonic). It works by using a cmd() function in the main thread
-to send commands to the process thread. This causes the process thread to lock a mutex (using a nonblocking trylock), which keeps the lock
-until the command (i.e. the sound) has completed. The cmd() function needs this mutex, and so will block or return false if a command is running.
+This is a jackd client implementing a blocking monosynth (since R2 is
+monophonic).
+It works by parsing commands from the user, which typically create
+and edit SynthDef objects (synthesizer definitions), which contain 
+GenDefs (generator definitions) and the links between them. 
+The GenDefs describe things like oscillators, envelope generators etc.
+and their parameters.
+
+Issuing a note command causes a Synth (containing Gens) to be created
+and added to the note command queue, along with which frequency to play.
+When the audio thread has finished playing a note, it pulls a new command
+off the end of the queue. Certain gens (typically envelope generators)
+are nominated as "done monitors", and these all have to be in the "done"
+state for the note to have finished.
 
 The projected usage here is that the main program will send UDP messages to the synth, which it will ignore if it's currently making a sound, or queue up - it may be necessary
 for complex beep sequences to be made up of multiple queued commands.
