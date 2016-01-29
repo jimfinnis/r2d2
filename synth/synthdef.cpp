@@ -11,6 +11,7 @@
 #include "Noise.h"
 #include "Utils.h"
 #include "WaveTableOsc.h"
+#include "Perlin.h"
 
 /// global directory of synths
 std::map<std::string,SynthDef *>synths;
@@ -30,6 +31,8 @@ Gen *GenDef::build(){
         g = new ConstMix();
     else if(name == "wave")
         g = new WaveTableOsc();
+    else if(name == "perlin")
+        g = new Perlin();
     else
         throw BadSynthException(name);
     
@@ -46,6 +49,14 @@ Gen *GenDef::build(){
     return g;
 }
 
+inline Gen *findGenInMap(std::map<std::string,Gen *> &map,std::string name){
+    std::map<std::string,Gen *>::const_iterator i;
+    i = map.find(name);
+    if(i==map.end())
+        throw UnknownGenException(name);
+    else
+        return i->second;
+}
 
 Synth *SynthDef::build(){
     Synth *s = new Synth();
@@ -70,8 +81,8 @@ Synth *SynthDef::build(){
     for(std::map<std::pair<std::string,std::string>,std::string>::
         iterator iter=links.begin();iter!=links.end();++iter){
         std::pair<std::string,std::string> inspec = iter->first;
-        Gen *outgen = gens[iter->second];
-        Gen *in = gens[inspec.first];
+        Gen *outgen = findGenInMap(gens,iter->second);
+        Gen *in = findGenInMap(gens,inspec.first);
         in->ins[in->getInputByName(inspec.second.c_str())] = outgen->out;
     }
     return s;

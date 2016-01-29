@@ -59,6 +59,9 @@ int process(jack_nframes_t nframes, void *arg){
     // which will delete the old one.
     
     if(!curcmd || curcmd->synth->done){
+#ifdef PROFILING
+        if(curcmd)curcmd->synth->showprofile();
+#endif
         if(curcmd)delete curcmd;
         curcmd = cmds.next();
         if(curcmd)

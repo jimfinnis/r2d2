@@ -17,6 +17,12 @@
 #define MAXFRAMESIZE 1024
 #define MAXINPUTS 4
 
+#define PROFILING
+
+#ifdef PROFILING
+#include <time.h>
+#endif
+
 class Gen {
 public:
     /// structure for mapping from names to strings. Terminate
@@ -34,9 +40,30 @@ public:
     const char *name; // the type name
     std::string genname; // the unique name.
     
+#ifdef PROFILING
+    struct timespec start_time;
+    long proftime;
+    void startprof(){
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start_time);
+    }
+    void endprof(){
+        struct timespec end_time;
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end_time);
+        proftime += end_time.tv_nsec - start_time.tv_nsec;
+    }
+#else
+    void startprof(){}
+    void endprof(){}
+#endif
+        
+        
+    
     virtual ~Gen(){}
     
     Gen(const char *n){
+#ifdef PROFILING
+        proftime=0;
+#endif
         name = n;
         done=false;
         isDoneMon=false;

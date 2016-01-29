@@ -82,6 +82,5 @@ public:
 
 /// global directory of synths
 extern std::map<std::string,SynthDef *>synths;
-    
 
 #endif /* __SYNTHDEF_H */

@@ -13,9 +13,10 @@
 #define NOISE_AMP 0
 
 class Noise : public Gen {
-    int type;
 public:
-    Noise() : Gen("noise"){}
+    Noise() : Gen("noise"){
+        addin("amp",0);
+    }
     virtual ~Noise(){}
     virtual void update(int nframes){
         float *amp = ins[NOISE_AMP];

@@ -16,6 +16,7 @@ public:
     ConstMix() : Gen("mix2") {
         addin("a",0);
         addin("b",1);
+        amp1=0.5;amp2=0.5; // default equal mix
     }
     virtual ~ConstMix(){}
     

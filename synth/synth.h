@@ -48,7 +48,9 @@ public:
         
         done=true;
         for(Gen *g=head;g;g=g->next){
+            g->startprof();
             g->update(nframes);
+            g->endprof();
             if(g->isDoneMon && !g->done)
                 done=false;
         }
@@ -58,6 +60,15 @@ public:
     virtual float *getout(){
         return out->out;
     }
+    
+#ifdef PROFILING
+    void showprofile(){
+        for(Gen *g=head;g;g=g->next){
+            printf("%s(%s) %ld\n",g->name,g->genname.c_str(),
+                   g->proftime);
+        }printf("\n");
+    }
+#endif
 };
 
 #endif /* __SYNTH_H */
