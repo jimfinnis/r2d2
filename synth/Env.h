@@ -69,9 +69,13 @@ public:
         for(int i=1;i<nlevs;i++){
             if(times[i]<0.001)times[i]=0.001;
             acctimes[i]=acctimes[i-1]+times[i];
-//            printf("Level %d lev %f time %f acctime %f\n",i,
-//                   levels[i],times[i],acctimes[i]);
         }
+        /*
+           for(int i=0;i<nlevs;i++){
+            printf("Level %d lev %f time %f acctime %f\n",i,
+                   levels[i],times[i],acctimes[i]);
+           }
+         */
         prepped=true;
     }
     

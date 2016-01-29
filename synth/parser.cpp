@@ -12,6 +12,7 @@
 #include "cmdlist.h"
 #include "synthdef.h"
 
+#include <sstream>
 
 
 //////////////////////////////////////////////////////////////////
@@ -37,6 +38,12 @@ Parser::Parser(){
 
 SynthDef *cursynth=NULL;
 GenDef *curgen=NULL;
+
+std::string d2string(double t){
+    std::ostringstream s;
+    s << t;
+    return s.str();
+}
 
 void Parser::parse(const char *buf){
     std::string a,b,c;
@@ -92,7 +99,7 @@ void Parser::parse(const char *buf){
                         throw UnexpectedException("ident or number",tok.getstring());
                     }
                     b = std::string(tok.getstring());
-                    cursynth->setParam(a,b);
+                    curgen->setParam(a,b);
                     t = tok.getnext();
                     if(t==T_SEMICOLON || t==T_END)
                         break;
@@ -111,6 +118,32 @@ void Parser::parse(const char *buf){
                 break;
             case T_OUT:
                 curgen->out=true;
+                break;
+                // special syntax to make an Env
+            case T_ENV:
+                a = getnextident();
+                curgen = cursynth->add("env",a);
+                {
+                    char lbuf[]="lx",tbuf[]="tx";
+                    for(int ct=0;ct<10;ct++){
+                        lbuf[1]='0'+ct;
+                        tbuf[1]='0'+ct;
+                        float t = tok.getnextfloat();
+                        if(tok.iserror())
+                            throw UnexpectedException("time",tok.getstring());
+                        float l = tok.getnextfloat();
+                        if(tok.iserror())
+                            throw UnexpectedException("level",tok.getstring());
+                        curgen->setParam(tbuf,d2string(t));
+                        curgen->setParam(lbuf,d2string(l));
+                        
+                        t = tok.getnext();
+                        if(t==T_SEMICOLON || t==T_END)
+                            break;
+                        else if(t!=T_COMMA)
+                            throw SyntaxException();
+                    }
+                }
                 break;
             default:
                 throw SyntaxException();

@@ -66,7 +66,7 @@ public:
     }
     
     void setPM(double m){
-        pmamount = m;
+        pmamount = m*0.01;
     }
     
     void setFM(double m){

@@ -60,11 +60,6 @@ public:
         return cur;
     }
     
-    /// add a param def to the current gen
-    void setParam(std::string k,std::string v){
-        cur->setParam(k,v);
-    }
-    
     /// create data to connect output of 
     /// "from" to input "port" on gendef "to"
     void addlink(const char *from,const char *to,const char *input){

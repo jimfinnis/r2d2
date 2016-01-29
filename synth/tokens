@@ -12,6 +12,7 @@
 *c+     :   T_PLUS
 
 newsynth : T_NEWSYNTH
+env : T_ENV
 s : T_S
 g : T_G
 p : T_P
