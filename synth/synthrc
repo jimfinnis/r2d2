@@ -38,6 +38,8 @@ g mix2 mix out p ampa 0.5,ampb 0.5
 + 440;
 
 
+# this creates a new synth
+
 newsynth bar
 g sin sin1 p pm 19,amp 0.1; out
 g sin sin2 p freq 1.7 # phase modulator
@@ -47,4 +49,13 @@ env e 0 0, 0.01 1, 0.08 0.7, 0.1 0; done
 env emod 0 0, 0.02 1, 0.07 0.2, 0.08 0.01, 0.1 0; 
 - emod sin2 amp
 
+# selects it and plays notes on it
+
 s bar +743,300,873,674,384,500
+
+# this demonstrates how to modify a synthdef with "m"
+# Change the sin1 PM and amp values:
+#   m sin1 p pm 20,amp 0.1;
+# Change the time of the final stage of the envelope:
+#   m e p t3 0.2;
+

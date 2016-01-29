@@ -18,11 +18,11 @@ public:
     Noise() : Gen("noise"){}
     virtual ~Noise(){}
     virtual void update(int nframes){
-        double *amp = ins[NOISE_AMP];
+        float *amp = ins[NOISE_AMP];
         for(int i=0;i<nframes;i++){
             double f = drand48();
             f -= 0.5;
-            out[i]=f*(amp?amp[i]:1.0);
+            out[i]=((float)f)*(amp?amp[i]:1.0);
         }
         scaleOut(nframes);
     }

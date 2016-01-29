@@ -20,9 +20,9 @@ inline float lerp(float a,float b,float t){
 /// Call reset to rewind the generator if required.
 
 class Env : public Gen {
-    double levels[ENVPOINTS]; // level at time t
-    double times[ENVPOINTS];  // time before level t since last level
-    double acctimes[ENVPOINTS];// time of each level (since start of env)
+    float levels[ENVPOINTS]; // level at time t
+    float times[ENVPOINTS];  // time before level t since last level
+    float acctimes[ENVPOINTS];// time of each level (since start of env)
     int nlevs;
     
     // does this need prepping?
@@ -82,8 +82,8 @@ public:
     }
     
     virtual void update(int nframes){
-        extern double samprate;
-        double step = 1.0/samprate;
+        extern float samprate;
+        float step = 1.0/samprate;
         if(!prepped)prep();
         for(int i=0;i<nframes;i++){
             time += step;

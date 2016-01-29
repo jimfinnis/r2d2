@@ -10,11 +10,12 @@
 #include "Env.h"
 #include "Noise.h"
 #include "Utils.h"
+#include "WaveTableOsc.h"
 
 /// global directory of synths
 std::map<std::string,SynthDef *>synths;
 
-double *SinOsc::table=NULL;
+float *SinOsc::table=NULL;
 
 /// add new synths to this function!
 Gen *GenDef::build(){
@@ -27,6 +28,8 @@ Gen *GenDef::build(){
         g = new Noise();
     else if(name == "mix2")
         g = new ConstMix();
+    else if(name == "wave")
+        g = new WaveTableOsc();
     else
         throw BadSynthException(name);
     

@@ -11,6 +11,7 @@
 #include "tokeniser.h"
 #include "tokens.h"
 #include "exceptions.h"
+#include "synthdef.h"
 
 
 
@@ -26,25 +27,36 @@ struct NoteCmd {
     virtual ~NoteCmd(){
         delete synth;
     }
-    NoteCmd(Synth *s,double f){
+    NoteCmd(Synth *s,float f){
         synth = s;
         freq = f;
         next = NULL;
     }
-              
+    
     
     Synth *synth; //!< is deleted with this structure
-    double freq;
+    float freq;
     NoteCmd *next;
 };
 
 class Parser {
 private:
+    SynthDef *cursynth;
+    GenDef *curgen;
+    
     Tokeniser tok;
     std::string getnextident(){
         if(tok.getnext()!=T_IDENT)
             throw SyntaxException();
         return std::string(tok.getstring());
+    }
+    void assertsynth(){
+        if(!cursynth)
+            throw Exception("no synth set");
+    }
+    void assertgen(){
+        if(!curgen)
+            throw Exception("no gen set");
     }
 public:
     Parser();
@@ -52,7 +64,7 @@ public:
     void parse(const char *buf);
 };
 
-    
+
 
 
 #endif /* __PARSER_H */

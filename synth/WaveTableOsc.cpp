@@ -16,16 +16,29 @@
 //  You may modify and use this source code to create binary code for your own purposes, free or commercial.
 //
 
+#include <stdio.h>
 #include "WaveTableOsc.h"
 
-
 WaveTableOsc::WaveTableOsc(void) : Gen("wavetable") {
+    addin("amp",WAVEOSC_AMP);
+    for (int idx = 0; idx < numWaveTableSlots; idx++) {
+        waveTables[idx].waveTable = 0;
+    }
+    reset();
+    triangleOsc();
+}
+
+void WaveTableOsc::reset(){
+    freq = 1;
     phasor = 0.0;
     phaseInc = 0.0;
     phaseOfs = 0.5;
     fixed=false;
     numWaveTables = 0;
     for (int idx = 0; idx < numWaveTableSlots; idx++) {
+        float *temp = waveTables[idx].waveTable;
+        if (temp != 0)
+            delete [] temp;
         waveTables[idx].topFreq = 0;
         waveTables[idx].waveTableLen = 0;
         waveTables[idx].waveTable = 0;
@@ -34,11 +47,7 @@ WaveTableOsc::WaveTableOsc(void) : Gen("wavetable") {
 
 
 WaveTableOsc::~WaveTableOsc(void) {
-    for (int idx = 0; idx < numWaveTableSlots; idx++) {
-        float *temp = waveTables[idx].waveTable;
-        if (temp != 0)
-            delete [] temp;
-    }
+    reset();
 }
 
 
@@ -72,6 +81,11 @@ int WaveTableOsc::addWaveTable(int len, float *waveTableIn, double topFreq) {
 // update
 //
 void WaveTableOsc::update(int nframes){
+    extern float samprate,keyFreq;
+    double f = freq;
+    if(!fixed)f*=(double)keyFreq;
+    phaseInc = f/(double)samprate;
+    float *amp = ins[WAVEOSC_AMP];
     
     for(int i=0;i<nframes;i++){
         // grab the appropriate wavetable
@@ -81,9 +95,10 @@ void WaveTableOsc::update(int nframes){
         }
         waveTable *waveTable = &waveTables[waveTableIdx];
         
+        float a = amp?amp[i]:1.0;
 #if !doLinearInterp
         // truncate
-        out[i]=  waveTable->waveTable[int(phasor * waveTable->waveTableLen)];
+        out[i]=  a*waveTable->waveTable[int(phasor * waveTable->waveTableLen)];
 #else
         // linear interpolation
         double temp = phasor * waveTable->waveTableLen;
@@ -94,7 +109,8 @@ void WaveTableOsc::update(int nframes){
             intPart = 0;
         float samp1 = waveTable->waveTable[intPart];
         
-        out[i] = samp0 + (samp1 - samp0) * fracPart;
+        out[i] = a*(samp0 + (samp1 - samp0) * fracPart);
+//        printf("%f %f\n",out[i],phaseInc);
 #endif
         
         phasor += phaseInc;
@@ -217,6 +233,7 @@ float WaveTableOsc::makeWaveTable( int len, double *ar, double *ai, double scale
 void WaveTableOsc::fillTables(double *freqWaveRe, double *freqWaveIm, int numSamples) {
     int idx;
     
+    reset();
     // zero DC offset and Nyquist
     freqWaveRe[0] = freqWaveIm[0] = 0.0;
     freqWaveRe[numSamples >> 1] = freqWaveIm[numSamples >> 1] = 0.0;
@@ -273,6 +290,64 @@ void WaveTableOsc::sawOsc(void) {
     freqWaveRe[0] = freqWaveRe[tableLen >> 1] = 0.0;
     for (idx = 1; idx < (tableLen >> 1); idx++) {
         freqWaveRe[idx] = 1.0 / idx;                    // sawtooth spectrum
+        freqWaveRe[tableLen - idx] = -freqWaveRe[idx];  // mirror
+    }
+    
+    // build a wavetable oscillator
+    fillTables(freqWaveRe, freqWaveIm, tableLen);
+    
+    delete [] freqWaveRe;
+    delete [] freqWaveIm;
+}
+
+void WaveTableOsc::squareOsc(void) {
+    int tableLen = 2048;    // to give full bandwidth from 20 Hz
+    int idx;
+    double *freqWaveRe = new double [tableLen];
+    double *freqWaveIm = new double [tableLen];
+    
+    // make a sawtooth
+    for (idx = 0; idx < tableLen; idx++) {
+        freqWaveIm[idx] = 0.0;
+    }
+    freqWaveRe[0] = freqWaveRe[tableLen >> 1] = 0.0;
+    for (idx = 1; idx < (tableLen >> 1); idx++) {
+        if(idx%2)
+            freqWaveRe[idx] = 1.0 / idx;
+        else
+            freqWaveRe[idx] = 0;
+        freqWaveRe[tableLen - idx] = -freqWaveRe[idx];  // mirror
+    }
+    
+    // build a wavetable oscillator
+    fillTables(freqWaveRe, freqWaveIm, tableLen);
+    
+    delete [] freqWaveRe;
+    delete [] freqWaveIm;
+}
+
+void WaveTableOsc::triangleOsc(void) {
+    int tableLen = 2048;    // to give full bandwidth from 20 Hz
+    int idx;
+    double *freqWaveRe = new double [tableLen];
+    double *freqWaveIm = new double [tableLen];
+    
+    // make a sawtooth
+    for (idx = 0; idx < tableLen; idx++) {
+        freqWaveIm[idx] = 0.0;
+    }
+    
+    // triangle spectrum - odd harmonics only, falling off with the
+    // inverse of the square of the harmonic number. Harmonics (4n-1)
+    // are negative.
+    
+    freqWaveRe[0] = freqWaveRe[tableLen >> 1] = 0.0;
+    for (idx = 1; idx < (tableLen >> 1); idx++) {
+        if(idx%2){
+            freqWaveRe[idx] = 1.0 / (idx*idx);
+            if((idx%4)==3)freqWaveRe[idx]*=-1.0;
+        } else
+            freqWaveRe[idx] = 0;
         freqWaveRe[tableLen - idx] = -freqWaveRe[idx];  // mirror
     }
     

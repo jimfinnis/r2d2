@@ -19,9 +19,9 @@ jack_port_t *output_port;
 jack_default_audio_sample_t note_frqs[128]; 
 
 /// sample rate 
-double samprate = 0;
+float samprate = 0;
 /// frequency of note being played
-double keyFreq = 440.0;
+float keyFreq = 440.0;
 
 /// various other globals
 jack_default_audio_sample_t amp=0.0;
@@ -45,7 +45,7 @@ int process(jack_nframes_t nframes, void *arg){
     // make noises
     if(curcmd){
         curcmd->synth->update(nframes);
-        double *outbuf = curcmd->synth->getout();
+        float *outbuf = curcmd->synth->getout();
         for(jack_nframes_t i=0;i<nframes;i++){
             out[i] = outbuf[i];
         }
@@ -100,32 +100,38 @@ int main(int argc,char *argv[]){
         return 1;
     }
     // get the real sampling rate
-    samprate = (double)jack_get_sample_rate(client);
+    samprate = (float)jack_get_sample_rate(client);
     
     
     // read initial commands. This has to happen after JACK
     // is initialised so we get the sampling rate.
     
-    FILE *a = fopen("synthrc","r");
-    if(a){
-        while(!feof(a)){
-            char buf[1024];
-            char *bb = fgets(buf,1024,a);
-            if(bb)parser.parse(bb);
+    if(argc>1){
+        FILE *a = fopen(argv[1],"r");
+        if(a){
+            while(!feof(a)){
+                char buf[1024];
+                char *bb = fgets(buf,1024,a);
+                if(bb)parser.parse(bb);
+            }
+            fclose(a);
         }
-        fclose(a);
     }
-/*    
+    
+#if 0
     NoteCmd *c = cmds.next();
-    for(int i=0;i<100;i++){
-        c->synth->update(100);
-        double *outbuf = c->synth->getout();
+    if(!c)printf("NO COMMANDS");
+    else {
         for(int i=0;i<100;i++){
-            printf("%f\n",outbuf[i]);
+            c->synth->update(100);
+            float *outbuf = c->synth->getout();
+            for(int i=0;i<100;i++){
+                printf("%f\n",outbuf[i]);
+            }
         }
     }
     exit(1);
-*/    
+#endif
     
     // set callbacks
     jack_set_process_callback(client, process, 0);
@@ -148,6 +154,7 @@ int main(int argc,char *argv[]){
     
     printf("Active.\n");
     
+#if 0
     while(1){
         usleep(0.01);
         if(cmds.empty()){
@@ -160,7 +167,7 @@ int main(int argc,char *argv[]){
             parser.parse(buf);
         }
     }
-    
+#endif
     while(1){
         char buf[1024];
         fputs(">> ",stdout);fflush(stdout);

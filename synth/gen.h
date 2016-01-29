@@ -28,9 +28,9 @@ public:
     
     std::map<std::string,int> inputMap;
     
-    double out[MAXFRAMESIZE];
-    double *ins[MAXINPUTS];
-    double masterAmp;
+    float out[MAXFRAMESIZE];
+    float *ins[MAXINPUTS];
+    float masterAmp;
     const char *name; // the type name
     std::string genname; // the unique name.
     
@@ -58,7 +58,7 @@ public:
         inputMap[s]=n;
     }
     
-    void setAmp(double a){
+    void setAmp(float a){
         masterAmp = a;
     }
     

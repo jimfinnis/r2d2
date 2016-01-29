@@ -11,17 +11,17 @@
 /// 2 input constant mixer
 
 class ConstMix : public Gen {
-    double amp1,amp2;
+    float amp1,amp2;
 public:
-    ConstMix() : Gen("constmix") {
+    ConstMix() : Gen("mix2") {
         addin("a",0);
         addin("b",1);
     }
     virtual ~ConstMix(){}
     
     virtual void update(int nframes){
-        double *in1 = ins[0];
-        double *in2 = ins[1];
+        float *in1 = ins[0];
+        float *in2 = ins[1];
         for(int i=0;i<nframes;i++){
             out[i]=in1[i]*amp1 + in2[i]*amp2;
         }

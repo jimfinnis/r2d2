@@ -34,11 +34,14 @@ typedef struct {
 
 const int numWaveTableSlots = 32;
 
+#define WAVEOSC_AMP 0
+
 class WaveTableOsc : public Gen {
 protected:
     double phasor;      // phase accumulator
     double phaseInc;    // phase increment
     double phaseOfs;    // phase offset for PWM
+    double freq;
     bool fixed; // fixed frequency, or multiple of key frequency
     
     // list of wavetables
@@ -47,6 +50,7 @@ protected:
     int addWaveTable(int len, float *waveTableIn, double topFreq);
     float makeWaveTable(int len, double *ar, double *ai, double scale, double topFreq);
     void fillTables(double *freqWaveRe, double *freqWaveIm, int numSamples);
+    void reset();
     
 public:
     WaveTableOsc(void);
@@ -56,10 +60,22 @@ public:
     
     void waveOsc(double *waveSamples, int tableLen);
     void sawOsc();
+    void squareOsc();
+    void triangleOsc();
     void sinOsc();// don't use, it's pointless :)
     
     virtual bool setParam(const char *k,const char *v){
         if(!strcmp("freq",k))setFrequency(atof(v));
+        else if(!strcmp("type",k)){
+            if(!strcmp("saw",v))
+                sawOsc();
+            else if(!strcmp("square",v))
+                squareOsc();
+            else if(!strcmp("triangle",v))
+                triangleOsc();
+            else 
+                throw Exception("unsupported type in waveosc");
+        }
         else if(!strcmp("mode",k))fixed=!strcmp(v,"fixed");
         else return Gen::setParam(k,v);
         return true;
@@ -73,11 +89,8 @@ public:
 };
 
 
-// note: if you don't keep this in the range of 0-1, you'll need to make changes elsewhere
-inline void WaveTableOsc::setFrequency(double inc) {
-    extern double samprate,keyFreq;
-    if(fixed)inc*=keyFreq;
-    phaseInc = inc/samprate;
+inline void WaveTableOsc::setFrequency(double f) {
+    freq = f;
 }
 
 // note: if you don't keep this in the range of 0-1, you'll need to make changes elsewhere

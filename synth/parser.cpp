@@ -10,7 +10,6 @@
 #include "tokens.h"
 #include "parser.h"
 #include "cmdlist.h"
-#include "synthdef.h"
 
 #include <sstream>
 
@@ -19,7 +18,7 @@
 
 Parser::Parser(){
 #if 0
-    extern double samprate;
+    extern float samprate;
     samprate=100;
     Noise n;
     for(int i=0;i<120;i++){
@@ -30,16 +29,15 @@ Parser::Parser(){
     }
     exit(0);
 #endif
+    cursynth=NULL;
+    curgen=NULL;
     tok.init();
     tok.setname("<in>");
     tok.settokens(tokens);
     tok.setcommentlinesequence("#");
 }
 
-SynthDef *cursynth=NULL;
-GenDef *curgen=NULL;
-
-std::string d2string(double t){
+std::string f2string(float t){
     std::ostringstream s;
     s << t;
     return s.str();
@@ -58,6 +56,7 @@ void Parser::parse(const char *buf){
             case T_END:
                 return;
             case T_PLUS:
+                assertsynth();
                 for(;;){
                     extern CmdList cmds;
                     Synth *s = cursynth->build();
@@ -82,15 +81,18 @@ void Parser::parse(const char *buf){
                 cursynth = synths[a];
                 break;
             case T_G:
+                assertsynth();
                 a = getnextident();
                 b = getnextident();
                 curgen = cursynth->add(a,b);
                 break;
             case T_M:
+                assertsynth();assertgen();
                 a = getnextident();
                 curgen = cursynth->findGen(a);
                 break;
             case T_P:
+                assertsynth();assertgen();
                 for(;;){
                     a = getnextident();
                     switch(tok.getnext()){
@@ -112,19 +114,23 @@ void Parser::parse(const char *buf){
                 }
                 break;
             case T_MINUS:
+                assertsynth();
                 a = getnextident();
                 b = getnextident();
                 c = getnextident();
                 cursynth->addlink(a.c_str(),b.c_str(),c.c_str());
                 break;
             case T_DONE:
+                assertgen();
                 curgen->setDoneMon();
                 break;
             case T_OUT:
+                assertgen();
                 curgen->out=true;
                 break;
                 // special syntax to make an Env
             case T_ENV:
+                assertsynth();
                 a = getnextident();
                 curgen = cursynth->add("env",a);
                 {
@@ -138,8 +144,8 @@ void Parser::parse(const char *buf){
                         float l = tok.getnextfloat();
                         if(tok.iserror())
                             throw UnexpectedException("level",tok.getstring());
-                        curgen->setParam(tbuf,d2string(t));
-                        curgen->setParam(lbuf,d2string(l));
+                        curgen->setParam(tbuf,f2string(t));
+                        curgen->setParam(lbuf,f2string(l));
                         
                         t = tok.getnext();
                         if(t==T_SEMICOLON || t==T_END)

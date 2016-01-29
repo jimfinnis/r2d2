@@ -30,7 +30,14 @@ public:
         if(isout)out=g;
     }
     
-    virtual ~Synth(){}
+    virtual ~Synth(){
+        Gen *p=head;
+        while(p){
+            Gen *q = p->next;
+            delete p;
+            p=q;
+        }
+    }
 
     virtual void update(int nframes) {
         if(nframes>MAXFRAMESIZE){
@@ -48,7 +55,7 @@ public:
     }
     
     /// get the output gen's buffer
-    virtual double *getout(){
+    virtual float *getout(){
         return out->out;
     }
 };
