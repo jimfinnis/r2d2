@@ -39,12 +39,12 @@ g mix2 mix out p ampa 0.5,ampb 0.5
 
 
 newsynth bar
-g sin sin1 p pm 1.2,amp 0.5; out
+g sin sin1 p pm 19,amp 0.1; out
 g sin sin2 p freq 1.7 # phase modulator
 - sin2 sin1 pm
-env e 0 0, 0.01 1, 0.3 0; done
+env e 0 0, 0.01 1, 0.08 0.7, 0.1 0; done
 - e sin1 amp
-env emod 0 0, 0.05 1, 0.1 0.2, 0.2 0.01, 0.3 0; 
+env emod 0 0, 0.02 1, 0.07 0.2, 0.08 0.01, 0.1 0; 
 - emod sin2 amp
 
 s bar +743,300,873,674,384,500

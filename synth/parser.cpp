@@ -86,6 +86,10 @@ void Parser::parse(const char *buf){
                 b = getnextident();
                 curgen = cursynth->add(a,b);
                 break;
+            case T_M:
+                a = getnextident();
+                curgen = cursynth->findGen(a);
+                break;
             case T_P:
                 for(;;){
                     a = getnextident();

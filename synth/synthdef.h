@@ -60,6 +60,15 @@ public:
         return cur;
     }
     
+    GenDef *findGen(std::string name){
+        std::map<std::string,GenDef *>::const_iterator i;
+        i=gendefs.find(name);
+        if(i==gendefs.end())
+            throw UnknownGenException(name);
+        else
+            return i->second;
+    }
+    
     /// create data to connect output of 
     /// "from" to input "port" on gendef "to"
     void addlink(const char *from,const char *to,const char *input){

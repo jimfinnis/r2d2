@@ -14,6 +14,7 @@
 newsynth : T_NEWSYNTH
 env : T_ENV
 s : T_S
+m : T_M
 g : T_G
 p : T_P
 done : T_DONE

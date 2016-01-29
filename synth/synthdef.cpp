@@ -57,7 +57,7 @@ Synth *SynthDef::build(){
         GenDef *d = iter->second;
         Gen *g = d->build();
         gens[iter->first]=g;
-        
+        g->setName(iter->first);
         // add to the synth, setting the output
         s->add(g,d->out);
     }

@@ -148,13 +148,18 @@ int main(int argc,char *argv[]){
     
     printf("Active.\n");
     
-    /*
-       while(1){
+    while(1){
+        usleep(0.01);
         if(cmds.empty()){
-            parser.parse("+440;");
+            char buf[128];
+            sprintf(buf,"m sin1 p pm %d,amp %f; m e p t3 %f;+%d;",
+                    rand()%30,
+                    drand48()*0.3 + 0.1,
+                    drand48()*0.1+0.1,
+                    200+(rand()%600));
+            parser.parse(buf);
         }
     }
-     */
     
     while(1){
         char buf[1024];

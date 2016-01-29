@@ -51,4 +51,17 @@ public:
                             " in gen "+std::string(name)) {}
 };
 
+class BadTimeException : public Exception {
+public:
+    BadTimeException(std::string name)
+                : Exception("bad time in envelope "+name){}
+};
+
+class UnknownGenException : public Exception {
+public:
+    UnknownGenException(std::string name)
+                : Exception("unknown gen "+name){}
+};
+    
+
 #endif /* __EXCEPTIONS_H */

@@ -31,7 +31,8 @@ public:
     double out[MAXFRAMESIZE];
     double *ins[MAXINPUTS];
     double masterAmp;
-    const char *name;
+    const char *name; // the type name
+    std::string genname; // the unique name.
     
     virtual ~Gen(){}
     
@@ -45,6 +46,12 @@ public:
         for(int i=0;i<MAXFRAMESIZE;i++)
             out[i]=0;
     }
+    
+    /// set the unique name for this gen
+    void setName(std::string n){
+        genname = n;
+    }
+          
     
     /// add inputs using this, in the constructor
     void addin(std::string s,int n){

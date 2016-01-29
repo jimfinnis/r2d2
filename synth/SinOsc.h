@@ -88,7 +88,8 @@ public:
             phaseacc += istep;
             if(phaseacc>1.0)phaseacc -= 1.0;
             if(phaseacc>1.0)phaseacc -= 1.0;
-            double iphase = phaseacc + (pm?pm[i]*pmamount:0.0);
+            // add 1 to avoid it going negative when we add the PM
+            double iphase = 1.0+phaseacc + (pm?pm[i]*pmamount:0.0);
             int x = iphase*SINETABLESIZE;
             x %= SINETABLESIZE;
             out[i]=table[x] * (amp?amp[i]:1.0);
