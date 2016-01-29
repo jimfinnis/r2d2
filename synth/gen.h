@@ -10,19 +10,33 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#include <map>
+
+#include "exceptions.h"
 
 #define MAXFRAMESIZE 1024
 #define MAXINPUTS 4
 
 class Gen {
 public:
+    /// structure for mapping from names to strings. Terminate
+    /// with NULL name.
+    struct InputMap {
+        const char *name;
+        int n;
+    };
+    
+    std::map<std::string,int> inputMap;
+    
     double out[MAXFRAMESIZE];
     double *ins[MAXINPUTS];
     double masterAmp;
+    const char *name;
     
     virtual ~Gen(){}
     
-    Gen(){
+    Gen(const char *n){
+        name = n;
         done=false;
         isDoneMon=false;
         masterAmp=1;
@@ -30,6 +44,11 @@ public:
             ins[i]=NULL;
         for(int i=0;i<MAXFRAMESIZE;i++)
             out[i]=0;
+    }
+    
+    /// add inputs using this, in the constructor
+    void addin(std::string s,int n){
+        inputMap[s]=n;
     }
     
     void setAmp(double a){
@@ -52,8 +71,8 @@ public:
         }
         else return false;
     }
-        
-              
+    
+    
     // assumes that any inputs are filled with data, and writes
     // to the output buffer
     virtual void update(int nframes) = 0;
@@ -68,33 +87,14 @@ public:
     bool isDoneMon;
     
     int getInputByName(const char *s){
-        return 0;
+        std::map<std::string,int>::const_iterator i = 
+              inputMap.find(std::string(s));
+        if(i == inputMap.end())
+            throw UnknownInputException(name,s);
+        else
+            return i->second;
     }
 };
-
-
-// some utility gens
-
-class ConstMix : public Gen {
-    double amp1,amp2;
-public:
-    virtual void update(int nframes){
-        double *in1 = ins[0];
-        double *in2 = ins[1];
-        for(int i=0;i<nframes;i++){
-            out[i]=in1[i]*amp1 + in2[i]*amp2;
-        }
-    }
-    
-    virtual bool setParam(const char *k,const char *v){
-        if(!strcmp("amp1",k))amp1=atof(v);
-        else if(!strcmp("amp1",k))amp2=atof(v);
-        else return Gen::setParam(k,v);
-        return true;
-    }
-};
-          
-    
 
 
 

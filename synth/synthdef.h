@@ -21,14 +21,21 @@ class GenDef {
     // map of parameters to be set into the gen once made
     std::map<std::string,std::string> params;
     std::string name; //!< name of the gen
+    bool doneMon; //!< true if a "done monitor" should be generated
 public:
-    GenDef(std::string n){
+    GenDef(std::string n)  {
         name = n;
+        doneMon=false;
+        out=false;
     }
     void setParam(std::string k,std::string v){
         params[k]=v;
     }
-        
+    void setDoneMon(){
+        doneMon=true;
+    }
+    
+    bool out; //!< set true if this is the output from the entire synth
     Gen *build();
 };
 
@@ -47,9 +54,10 @@ public:
     
     /// add a new gendef, which becomes the current gendef for
     /// subsequent parameters
-    void add(std::string type,std::string name){
+    GenDef *add(std::string type,std::string name){
         cur = new GenDef(type);
         gendefs[name]=cur;
+        return cur;
     }
     
     /// add a param def to the current gen

@@ -9,6 +9,7 @@
 #include "SinOsc.h"
 #include "Env.h"
 #include "Noise.h"
+#include "Utils.h"
 
 /// global directory of synths
 std::map<std::string,SynthDef *>synths;
@@ -20,13 +21,16 @@ Gen *GenDef::build(){
     Gen *g;
     if(name == "sin")
         g = new SinOsc();
-    if(name == "env")
+    else if(name == "env")
         g = new Env();
-    if(name == "noise")
+    else if(name == "noise")
         g = new Noise();
+    else if(name == "mix2")
+        g = new ConstMix();
     else
         throw BadSynthException(name);
     
+    if(doneMon)g->isDoneMon=true;
     
     // now set the params
     
@@ -36,10 +40,13 @@ Gen *GenDef::build(){
             throw BadParamException(name.c_str(),iter->first.c_str());
         }
     }
+    return g;
 }
 
 
 Synth *SynthDef::build(){
+    Synth *s = new Synth();
+    
     // first make all the gens from the gendefs, and store
     // them in a map.
     
@@ -47,8 +54,12 @@ Synth *SynthDef::build(){
     
     for(std::map<std::string, GenDef *>::iterator iter =
         gendefs.begin();iter!=gendefs.end();++iter){
-        Gen *g = iter->second->build();
+        GenDef *d = iter->second;
+        Gen *g = d->build();
         gens[iter->first]=g;
+        
+        // add to the synth, setting the output
+        s->add(g,d->out);
     }
     
     // now wire them together
@@ -60,4 +71,5 @@ Synth *SynthDef::build(){
         Gen *in = gens[inspec.first];
         in->ins[in->getInputByName(inspec.second.c_str())] = outgen->out;
     }
+    return s;
 }

@@ -9,7 +9,7 @@
 
 #include "tokens.h"
 #include "parser.h"
-
+#include "cmdlist.h"
 #include "synthdef.h"
 
 
@@ -35,55 +35,91 @@ Parser::Parser(){
     tok.setcommentlinesequence("#");
 }
 
-Synth *Parser::parseSynth(){
-    const char *s = tok.getstring();
-    if(!strcmp("beep",s)){
-    }
-    return NULL;
-}
-
 SynthDef *cursynth=NULL;
-GenDef *curdef=NULL;
+GenDef *curgen=NULL;
 
-Synth *Parser::parse(const char *buf){
+void Parser::parse(const char *buf){
     std::string a,b,c;
-          
+    int t;
+    
+    std::string line = buf;
     tok.reset(buf);
-    Synth *head=NULL,*tail=NULL,*ss;
-    tok.settrace(1);
-    for(;;){
-        switch(tok.getnext()){
-        case T_NEWSYNTH:
-            a = getnextident();
-            cursynth = new SynthDef();
-            synths[a]=cursynth;
-            break;
-        case T_MODSYNTH:
-            a = getnextident();
-            cursynth = synths[a];
-            break;
-        case T_G:
-            a = getnextident();
-            b = getnextident();
-            cursynth->add(a,b);
-            break;
-        case T_P:
-            for(;;){
+    
+    try {
+        for(;;){
+            switch(tok.getnext()){
+            case T_END:
+                return;
+            case T_PLUS:
+                for(;;){
+                    extern CmdList cmds;
+                    Synth *s = cursynth->build();
+                    float f = tok.getnextfloat();
+                    NoteCmd *cmd = new NoteCmd(s,f);
+                    cmds.add(cmd);
+                    
+                    t = tok.getnext();
+                    if(t==T_SEMICOLON || t==T_END)
+                        break;
+                    else if(t!=T_COMMA)
+                        throw SyntaxException();
+                }
+                break;    
+            case T_NEWSYNTH:
+                a = getnextident();
+                cursynth = new SynthDef();
+                synths[a]=cursynth;
+                break;
+            case T_S:
+                a = getnextident();
+                cursynth = synths[a];
+                break;
+            case T_G:
                 a = getnextident();
                 b = getnextident();
-                if(tok.getnext()==T_SEMICOLON)
-                    break;
-                cursynth->setParam(a,b);
+                curgen = cursynth->add(a,b);
+                break;
+            case T_P:
+                for(;;){
+                    a = getnextident();
+                    switch(tok.getnext()){
+                    case T_IDENT:
+                    case T_INT:
+                    case T_FLOAT:
+                        break;
+                    default:
+                        printf("%d\n",tok.gettoken().i);
+                        throw UnexpectedException("ident or number",tok.getstring());
+                    }
+                    b = std::string(tok.getstring());
+                    cursynth->setParam(a,b);
+                    t = tok.getnext();
+                    if(t==T_SEMICOLON || t==T_END)
+                        break;
+                    else if(t!=T_COMMA)
+                        throw SyntaxException();
+                }
+                break;
+            case T_MINUS:
+                a = getnextident();
+                b = getnextident();
+                c = getnextident();
+                cursynth->addlink(a.c_str(),b.c_str(),c.c_str());
+                break;
+            case T_DONE:
+                curgen->setDoneMon();
+                break;
+            case T_OUT:
+                curgen->out=true;
+                break;
+            default:
+                throw SyntaxException();
             }
-            break;
-        case T_MINUS:
-            a = getnextident();
-            b = getnextident();
-            c = getnextident();
-            cursynth->addlink(a.c_str(),b.c_str(),c.c_str());
-            break;
-        default:
-            printf("Error in synth line\n");break;
         }
+    } catch (Exception e) {
+        printf("Exception in parsing: %s\n",e.what());
+        printf("Line: %s\n",line.c_str());
+        printf("Token: %s\n",tok.getstring());
+        exit(1);
     }
 }

@@ -9,9 +9,12 @@
 *c,     :   T_COMMA
 *c;     :   T_SEMICOLON
 *c-     :   T_MINUS
+*c+     :   T_PLUS
 
 newsynth : T_NEWSYNTH
-modsynth : T_MODSYNTH
+s : T_S
 g : T_G
 p : T_P
+done : T_DONE
+out : T_OUT
 

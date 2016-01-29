@@ -1,0 +1,42 @@
+Synth language syntax:
+
+
+Start a new synth definition with
+
+    newsynth <name>
+    
+New generators will now be added to this synth. Use
+
+    modsynth <name>
+    
+to modify an existing synthdef
+
+Add new gens with
+
+    g <type> <name>
+
+Set parameters with
+
+    p <param> <val>, <param> <val>, ... ;
+
+
+Add links with
+
+- <outname> <inname> <inportname>
+
+Play notes with
+
++ <freq>,<freq>,...;
+
+    
+
+An example:
+
+newsynth wibble 
+g sin sosc1 out
+p amp 0.1, freq 400;
+
+g env myenv 
+p l0 0, t0 0, l1 1, t1 0.1, t2 1, l2 0;
+- myenv sosc1 amp
++ 400,420,330;

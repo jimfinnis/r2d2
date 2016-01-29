@@ -1,10 +1,7 @@
 /**
  * @file synth.h
- * @brief  A synth makes a sound using gens.  A list of synths can be chained together, in which
- * case the next one is run when this one finishes (sets done to true).
- * 
- * The synth itself can be thought of as a patch, but the parameters
- * of the gens are separate (since they are shared between all synths).
+ * @brief  A synth makes a sound using gens and is instantiated by
+ * a synthdef.
  *
  */
 
@@ -16,25 +13,21 @@
 
 class Synth  {
     Gen *head,*tail;
+    Gen *out;
 public:
     bool done; // set to true when finished
-    Synth *next;
     Synth(){
-        next=NULL;
         head=NULL;
         done=false;
     }
     
-    // add generators in reverse order of execution (i.e. output
-    // generator first). If donemon is set, this is considered an
-    // "isdone monitor". All these must set their done flags to set
-    // the synth's done flag. Typically used of Envs.
+    // add generators in reverse order of execution, ideally
     
-    void add(Gen *g,bool donemon=false){
+    void add(Gen *g,bool isout=false){
         if(!head)tail=g;
         g->next = head;
         head = g;
-        g->isDoneMon = donemon;
+        if(isout)out=g;
     }
     
     virtual ~Synth(){}
@@ -54,9 +47,9 @@ public:
         }
     }
     
-    /// the output is always the tail gen (the first added)
+    /// get the output gen's buffer
     virtual double *getout(){
-        return tail->out;
+        return out->out;
     }
 };
 

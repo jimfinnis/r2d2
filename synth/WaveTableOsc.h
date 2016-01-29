@@ -39,6 +39,7 @@ protected:
     double phasor;      // phase accumulator
     double phaseInc;    // phase increment
     double phaseOfs;    // phase offset for PWM
+    bool fixed; // fixed frequency, or multiple of key frequency
     
     // list of wavetables
     int numWaveTables;
@@ -59,7 +60,9 @@ public:
     
     virtual bool setParam(const char *k,const char *v){
         if(!strcmp("freq",k))setFrequency(atof(v));
+        else if(!strcmp("mode",k))fixed=!strcmp(v,"fixed");
         else return Gen::setParam(k,v);
+        return true;
     }
     
     void setFrequency(double inc);
@@ -72,7 +75,8 @@ public:
 
 // note: if you don't keep this in the range of 0-1, you'll need to make changes elsewhere
 inline void WaveTableOsc::setFrequency(double inc) {
-    extern double samprate;
+    extern double samprate,keyFreq;
+    if(fixed)inc*=keyFreq;
     phaseInc = inc/samprate;
 }
 

@@ -15,6 +15,8 @@
 class Noise : public Gen {
     int type;
 public:
+    Noise() : Gen("noise"){}
+    virtual ~Noise(){}
     virtual void update(int nframes){
         double *amp = ins[NOISE_AMP];
         for(int i=0;i<nframes;i++){

@@ -19,10 +19,11 @@
 #include "WaveTableOsc.h"
 
 
-WaveTableOsc::WaveTableOsc(void) {
+WaveTableOsc::WaveTableOsc(void) : Gen("wavetable") {
     phasor = 0.0;
     phaseInc = 0.0;
     phaseOfs = 0.5;
+    fixed=false;
     numWaveTables = 0;
     for (int idx = 0; idx < numWaveTableSlots; idx++) {
         waveTables[idx].topFreq = 0;

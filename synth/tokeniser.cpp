@@ -301,6 +301,7 @@ loop:
         return curtype;
     }
     curtype = endtoken;
+    dprintf("Returning token type %d\n",curtype);
     return curtype;
 }
 

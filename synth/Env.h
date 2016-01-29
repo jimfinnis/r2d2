@@ -25,23 +25,31 @@ class Env : public Gen {
     double acctimes[ENVPOINTS];// time of each level (since start of env)
     int nlevs;
     
+    // does this need prepping?
+    bool prepped;
+    
     // the next level we are waiting for
     int nextlev;
     // current time
     float time;
 public:
     
-    Env(){
+    Env() : Gen("env"){
         nlevs=0;
+        reset();
     }
+    virtual ~Env(){}
     
     void reset(){
         time=0;
         nextlev=0;
         done=false;
+        prepped=false;
     }
     
     virtual bool setParam(const char *k,const char *v){
+        // reset the prep
+        prepped=false;
         if(isdigit(k[1])){
             int lev = k[1]-'0';
             if(lev>=nlevs)nlevs=lev+1;
@@ -49,6 +57,7 @@ public:
                 times[lev]=atof(v);
             else if(k[0]=='l')
                 levels[lev]=atof(v);
+            return true;
         }
         else return Gen::setParam(k,v);
     }
@@ -60,14 +69,16 @@ public:
         for(int i=1;i<nlevs;i++){
             if(times[i]<0.001)times[i]=0.001;
             acctimes[i]=acctimes[i-1]+times[i];
+//            printf("Level %d lev %f time %f acctime %f\n",i,
+//                   levels[i],times[i],acctimes[i]);
         }
-        reset();
+        prepped=true;
     }
     
     virtual void update(int nframes){
         extern double samprate;
         double step = 1.0/samprate;
-        
+        if(!prepped)prep();
         for(int i=0;i<nframes;i++){
             time += step;
             if(time<acctimes[0])
@@ -87,6 +98,7 @@ public:
                 out[i] = lerp(levels[nextlev-1],levels[nextlev],
                               (time-acctimes[nextlev-1])/times[nextlev]);
             }
+//            printf("Level %d lev %f time %f acctime %f\n",i,
         }
         scaleOut(nframes);
     }
