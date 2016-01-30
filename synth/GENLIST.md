@@ -88,3 +88,22 @@ Perlin noise generator.
 |---|---|
 |amp|amplitude|
 
+## lpf (LPF.h)
+Resonant low pass filter. Quite slow, and the modulation
+only occurs at the control rate (every 1024 samples) because it's so
+computationally expensive.
+### Params
+|name|function|default|
+|---|---|---|
+freq|cutoff|8000|
+q|resonance|1|
+gain|filter gain|1|
+qmod|amount of Q modulation|0.1|
+fmod|amount of freq modulation|1|
+### Inputs
+|name|function|
+|---|---|---|
+|in|signal to be filtered|
+|qm|resonance modulation|
+|fm|frequency modulation|
+

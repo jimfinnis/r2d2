@@ -12,6 +12,7 @@
 #include "Utils.h"
 #include "WaveTableOsc.h"
 #include "Perlin.h"
+#include "LPF.h"
 
 /// global directory of synths
 std::map<std::string,SynthDef *>synths;
@@ -33,6 +34,8 @@ Gen *GenDef::build(){
         g = new WaveTableOsc();
     else if(name == "perlin")
         g = new Perlin();
+    else if(name == "lpf")
+        g = new LPF();
     else
         throw BadSynthException(name);
     
