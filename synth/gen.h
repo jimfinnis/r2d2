@@ -23,6 +23,9 @@
 #include <time.h>
 #endif
 
+extern float floatZeroes[MAXFRAMESIZE];
+extern float floatOnes[MAXFRAMESIZE];
+
 class Gen {
 public:
     /// structure for mapping from names to strings. Terminate

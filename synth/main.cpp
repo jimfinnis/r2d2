@@ -18,6 +18,11 @@ jack_port_t *output_port;
 /// table of midi note "frequencies" adjusted by sample rate
 jack_default_audio_sample_t note_frqs[128]; 
 
+/// array of zeroes
+float floatZeroes[MAXFRAMESIZE];
+/// array of ones
+float floatOnes[MAXFRAMESIZE];
+
 /// sample rate 
 float samprate = 0;
 /// frequency of note being played
@@ -95,6 +100,10 @@ Parser parser;
 int main(int argc,char *argv[]){
     jack_client_t *client;
     
+    for(int i=0;i<MAXFRAMESIZE;i++){
+        floatZeroes[i]=0.0f;
+        floatOnes[i]=1.0f;
+    }
     
     // start JACK
     

@@ -78,21 +78,25 @@ public:
         float *pm = ins[SINOSC_PM];
         float *fm = ins[SINOSC_FM];
         
+        // set defaults
+        pm = pm?pm:floatZeroes;
+        fm = fm?fm:floatZeroes;
+        amp = amp?amp:floatOnes;
+        
         extern float samprate,keyFreq;
         float f = freq;
         if(!fixed)f*=keyFreq;
         float step = f/samprate;
         
         for(int i=0;i<nframes;i++){
-            float istep = step + (fm?fm[i]*fmamount:0.0f);
+            float istep = step + fm[i]*fmamount;
             phaseacc += istep;
             if(phaseacc>1.0f)phaseacc -= 1.0f;
-            if(phaseacc>1.0f)phaseacc -= 1.0f;
             // add 1 to avoid it going negative when we add the PM
-            float iphase = 1.0+phaseacc + (pm?pm[i]*pmamount:0.0);
+            float iphase = 1.0+phaseacc + pm[i]*pmamount;
             int x = iphase*SINETABLESIZE;
             x %= SINETABLESIZE;
-            out[i]=table[x] * (amp?amp[i]:1.0);
+            out[i]=table[x] * amp[i];
 //            printf("-- %f %f %f\n",ifreq,amp[i],out[i]);
         }
         scaleOut(nframes);
