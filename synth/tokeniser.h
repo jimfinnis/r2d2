@@ -275,6 +275,7 @@ private:
     bool trace;
     
     int chartable[128];
+    bool digraphstarttable[128];
     struct {
         char c1,c2;
         int token;

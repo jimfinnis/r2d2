@@ -8,8 +8,10 @@
 
 *c,     :   T_COMMA
 *c;     :   T_SEMICOLON
-*c-     :   T_MINUS
 *c+     :   T_PLUS
+*c:     :   T_COLON
+
+*d->    :   T_ARROW
 
 newsynth : T_NEWSYNTH
 env : T_ENV

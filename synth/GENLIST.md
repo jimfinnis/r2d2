@@ -35,14 +35,18 @@ of frequencies.
 |name|function|default|
 |---|---|---|
 |freq|frequency (see mode, below)|1|
+|fm|amount of FM|
 |type|saw, triangle or square|triangle|
 |mode|fixed or relative, defining how frequency generated:|key|
-||if **fixed**, freq=frequency*keyfreq, 
-||otherwise freq=frequency
+||if **fixed**, freq=frequency*keyfreq,|
+||otherwise freq=frequency|
+|recalc|FM recalculation interval|256 samples|
+
 ### inputs
 |name|function|
 |---|---|
 |amp|amp modulation|
+|fm|frequency modulation (calculated every **recalc** samples)
         
 ## env (Env.h)
 Envelope generator, able to store up to 10 points. Before the first

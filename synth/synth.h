@@ -62,12 +62,8 @@ public:
     }
     
 #ifdef PROFILING
-    void showprofile(){
-        for(Gen *g=head;g;g=g->next){
-            printf("%s(%s) %ld\n",g->name,g->genname.c_str(),
-                   g->proftime);
-        }printf("\n");
-    }
+    void showprofile();
+    
 #endif
 };
 

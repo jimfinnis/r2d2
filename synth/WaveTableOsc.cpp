@@ -21,9 +21,12 @@
 
 WaveTableOsc::WaveTableOsc(void) : Gen("wavetable") {
     addin("amp",WAVEOSC_AMP);
+    addin("fm",WAVEOSC_FM);
+    recalcinterval=256;
     for (int idx = 0; idx < numWaveTableSlots; idx++) {
         waveTables[idx].waveTable = 0;
     }
+    fmamount=1;
     reset();
     triangleOsc();
 }
@@ -82,12 +85,21 @@ int WaveTableOsc::addWaveTable(int len, float *waveTableIn, double topFreq) {
 //
 void WaveTableOsc::update(int nframes){
     extern float samprate,keyFreq;
-    double f = freq;
-    if(!fixed)f*=(double)keyFreq;
-    phaseInc = f/(double)samprate;
+    
     float *amp = ins[WAVEOSC_AMP];
+    amp = amp?amp:floatOnes;
+    float *fm = ins[WAVEOSC_FM];
+    fm = fm?fm:floatZeroes;
     
     for(int i=0;i<nframes;i++){
+        // recalc freq every now and then
+        if((i%recalcinterval)==0){
+            double f = freq;
+            if(!fixed)f*=(double)keyFreq;
+            f+=fm[i]*fmamount;
+            phaseInc = f/(double)samprate;
+        }
+        
         // grab the appropriate wavetable
         int waveTableIdx = 0;
         while ((phaseInc >= waveTables[waveTableIdx].topFreq) && (waveTableIdx < (numWaveTables - 1))) {
@@ -114,7 +126,6 @@ void WaveTableOsc::update(int nframes){
 #endif
         
         phasor += phaseInc;
-        
         if (phasor >= 1.0)
             phasor -= 1.0;
     }

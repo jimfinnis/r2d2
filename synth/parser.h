@@ -50,6 +50,15 @@ private:
             throw SyntaxException();
         return std::string(tok.getstring());
     }
+    
+    void expect(int t,std::string tokname){
+        if(tok.getnext()!=t)
+            throw UnexpectedException("'"+tokname+"'",
+                                      ("'"+
+                                      std::string(tok.getstring())+"'").c_str());
+    }
+        
+    
     void assertsynth(){
         if(!cursynth)
             throw Exception("no synth set");

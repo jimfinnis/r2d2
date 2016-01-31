@@ -50,6 +50,7 @@ void Parser::parse(const char *buf){
     std::string line = buf;
     tok.reset(buf);
     
+    
     try {
         for(;;){
             switch(tok.getnext()){
@@ -113,10 +114,12 @@ void Parser::parse(const char *buf){
                         throw SyntaxException();
                 }
                 break;
-            case T_MINUS:
+            case T_IDENT:
                 assertsynth();
-                a = getnextident();
+                a = std::string(tok.getstring());
+                expect(T_ARROW,"->");
                 b = getnextident();
+                expect(T_COLON,":");
                 c = getnextident();
                 cursynth->addlink(a.c_str(),b.c_str(),c.c_str());
                 break;

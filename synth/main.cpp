@@ -13,6 +13,8 @@
 #include "parser.h"
 #include "cmdlist.h"
 
+#define LOOPTILLDONE 1
+
 jack_port_t *output_port;
 
 /// table of midi note "frequencies" adjusted by sample rate
@@ -34,7 +36,7 @@ jack_default_audio_sample_t amp=0.0;
 
 /// the command list 
 CmdList cmds;
-
+volatile bool cmdsDone=false;
 
 /*
  * JACK callbacks
@@ -69,8 +71,10 @@ int process(jack_nframes_t nframes, void *arg){
 #endif
         if(curcmd)delete curcmd;
         curcmd = cmds.next();
-        if(curcmd)
+        if(curcmd){
             keyFreq = curcmd->freq;
+            cmdsDone=false;
+        } else cmdsDone=true;
     }
     
     return 0;
@@ -130,7 +134,7 @@ int main(int argc,char *argv[]){
         }
     }
     
-#if 0
+#if TESTSYNTH
     NoteCmd *c = cmds.next();
     if(!c)printf("NO COMMANDS");
     else {
@@ -166,9 +170,9 @@ int main(int argc,char *argv[]){
     
     printf("Active.\n");
     
-#if 0
+#if REPEATNOTES
     while(1){
-        usleep(0.01);
+        usleep(10000);
         if(cmds.empty()){
             char buf[128];
             sprintf(buf,"m sin1 p pm %d,amp %f; m e p t3 %f;+%d;",
@@ -180,12 +184,23 @@ int main(int argc,char *argv[]){
         }
     }
 #endif
+#if LOOPTILLDONE
+    while(1){
+        usleep(10000);
+        if(cmdsDone){
+            break;
+        }
+    }
+#endif   
+            
+#if CLI
     while(1){
         char buf[1024];
         fputs(">> ",stdout);fflush(stdout);
         char *bb = fgets(buf,1024,stdin);
         if(bb)parser.parse(bb);
     }
+#endif
     jack_client_close(client);
     exit(0);
 }

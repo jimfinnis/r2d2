@@ -5,24 +5,39 @@ Start a new synth definition with
 
     newsynth <name>
     
-New generators will now be added to this synth. Use
+New generators will now be added to this synth.
 
-    modsynth <name>
-    
-to modify an existing synthdef
 
-Add new gens with
+Add new generator and set current generator with
 
     g <type> <name>
 
-Set parameters with
+Set the current generator to an existing one (for modification) with
+
+    m <name>
+    
+Set parameters in current generator with
 
     p <param> <val>, <param> <val>, ... ;
+
+Set current generator do be a "done monitor" with 
+
+    done
+
+When all done monitors have completed, the sound is finished. Only
+envelope generators currently have completion semantics.
+
+Set the current generator to be the audio output with
+
+    out
+    
+
+
 
 
 Add links with
 
-- <outname> <inname> <inportname>
+<outname> -> <inname>:<inportname>
 
 Play notes with
 
@@ -38,5 +53,5 @@ p amp 0.1, freq 400;
 
 g env myenv 
 p l0 0, t0 0, l1 1, t1 0.1, t2 1, l2 0;
-- myenv sosc1 amp
+myenv->sosc1:amp
 + 400,420,330;

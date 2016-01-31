@@ -35,6 +35,7 @@ typedef struct {
 const int numWaveTableSlots = 32;
 
 #define WAVEOSC_AMP 0
+#define WAVEOSC_FM 1
 
 class WaveTableOsc : public Gen {
 protected:
@@ -42,6 +43,9 @@ protected:
     double phaseInc;    // phase increment
     double phaseOfs;    // phase offset for PWM
     double freq;
+    double fmamount;
+    int recalcinterval; // recalculate freq every n samples (FM rate)
+    
     bool fixed; // fixed frequency, or multiple of key frequency
     
     // list of wavetables
@@ -66,6 +70,8 @@ public:
     
     virtual bool setParam(const char *k,const char *v){
         if(!strcmp("freq",k))setFrequency(atof(v));
+        else if(!strcmp("fm",k))fmamount=atof(v);
+        else if(!strcmp("recalc",k))recalcinterval=atoi(v);
         else if(!strcmp("type",k)){
             if(!strcmp("saw",v))
                 sawOsc();

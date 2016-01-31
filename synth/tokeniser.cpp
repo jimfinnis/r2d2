@@ -50,8 +50,10 @@ bool Tokeniser::getnextidentorkeyword(char *out){
 
 void Tokeniser::init()
 {
-    for(int i=0;i<128;i++)
+    for(int i=0;i<128;i++){
         chartable[i]=-100;
+        digraphstarttable[i]=false;
+    }
     tokens = NULL;
     handler = NULL;
     digraphct = 0;
@@ -235,9 +237,10 @@ loop:
         // get char into buffer while:
         // - not whitespace and
         // - not special character token or digit preceded by . or -
+        // - not digraph start token
         while((*p && *p!=' ' && *p!='\t' && *p!=0x0a &&
               *p!=0x0d && 
-               (chartable[(unsigned char)*p]<-1)) || 
+               (chartable[(unsigned char)*p]<-1) && !digraphstarttable[(unsigned char)*p]) || 
                (*p && isdigit(p[1]) && (*p=='.'||*p=='-')))p++;
         len = p-b;
         memcpy(val.s,b,len);
@@ -345,6 +348,7 @@ void Tokeniser::settokens(TokenRegistry *k)
                 break;
             case 'd':
                 digraphtable[digraphct].c1 = k->word[2];
+                digraphstarttable[k->word[2]&0x7f]  = true;
                 digraphtable[digraphct].c2 = k->word[3];
                 digraphtable[digraphct++].token = k->token;
             default: // ignore badly formed entries
