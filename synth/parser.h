@@ -39,10 +39,31 @@ struct NoteCmd {
     NoteCmd *next;
 };
 
+class Stack {
+    float stack[8];
+public:
+    int ct;
+    Stack(){reset();}
+    void reset(){ct=0;}
+    float pop(){
+        if(ct==0)
+            throw StackUnderflowException();
+        return stack[--ct];
+    }
+    void push(float f){
+        if(ct==7)
+            throw StackOverflowException();
+        stack[ct++]=f;
+    }
+};
+          
+
 class Parser {
 private:
     SynthDef *cursynth;
     GenDef *curgen;
+    Stack stack;
+    
     
     Tokeniser tok;
     std::string getnextident(){
@@ -67,9 +88,12 @@ private:
         if(!curgen)
             throw Exception("no gen set");
     }
+    
+    /// parse note sequences
+    void parseNotes();
 public:
     Parser();
-    /// either modify synthdefs or add a command to the chain
+    /// parse a bunch of commands
     void parse(const char *buf);
 };
 

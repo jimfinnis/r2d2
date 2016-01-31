@@ -69,8 +69,10 @@ Synth *SynthDef::build(){
     
     std::map<std::string,Gen *> gens;
     
-    for(std::map<std::string, GenDef *>::iterator iter =
-        gendefs.begin();iter!=gendefs.end();++iter){
+    // iterate through the list (which maintains the insert order)
+    
+    for(std::list<std::pair<std::string, GenDef *> >::iterator iter =
+        gendefList.begin();iter!=gendefList.end();++iter){
         GenDef *d = iter->second;
         Gen *g = d->build();
         gens[iter->first]=g;

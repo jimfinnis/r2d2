@@ -14,7 +14,6 @@
 #include "cmdlist.h"
 
 #define LOOPTILLDONE 1
-
 jack_port_t *output_port;
 
 /// table of midi note "frequencies" adjusted by sample rate
@@ -138,12 +137,12 @@ int main(int argc,char *argv[]){
     NoteCmd *c = cmds.next();
     if(!c)printf("NO COMMANDS");
     else {
-        for(int i=0;i<100;i++){
+        for(int i=0;i<400;i++){
             c->synth->update(100);
-            float *outbuf = c->synth->getout();
-            for(int i=0;i<100;i++){
-                printf("%f\n",outbuf[i]);
-            }
+//            float *outbuf = c->synth->getout();
+//            for(int i=0;i<100;i++){
+//                printf("%f\n",outbuf[i]);
+//            }
         }
     }
     exit(1);
@@ -154,16 +153,17 @@ int main(int argc,char *argv[]){
     jack_set_sample_rate_callback(client, srate, 0);
     jack_on_shutdown(client, jack_shutdown, 0);
     
-    
     output_port = jack_port_register(
                                      client, 
                                      "r2d2", 
                                      JACK_DEFAULT_AUDIO_TYPE, 
                                      JackPortIsOutput, 0);
+    
     if (jack_activate(client)) {
         fprintf(stderr, "cannot activate client");
         return 1;
     }
+    
     
     jack_connect(client,"r2d2:r2d2","system:playback_1");
     jack_connect(client,"r2d2:r2d2","system:playback_2");

@@ -9,6 +9,7 @@
 
 #include <string>
 #include <map>
+#include <list>
 
 #include "exceptions.h"
 #include "synth.h"
@@ -44,6 +45,10 @@ class SynthDef {
     std::map<std::string,GenDef *> gendefs;
     GenDef *cur; //!< current gendef
     
+    // list of gendefs - we need this because we need to add them
+    // to the synth in order
+    std::list<std::pair<std::string,GenDef *> > gendefList;
+    
     /// linkage data, describing where each input comes from -
     /// it's [ (inname,inport) <- outname ] where the names
     /// are gen names.
@@ -57,6 +62,7 @@ public:
     GenDef *add(std::string type,std::string name){
         cur = new GenDef(type);
         gendefs[name]=cur;
+        gendefList.push_front(std::make_pair(name,cur));
         return cur;
     }
     

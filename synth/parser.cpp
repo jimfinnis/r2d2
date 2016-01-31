@@ -43,10 +43,69 @@ std::string f2string(float t){
     return s.str();
 }
 
+void Parser::parseNotes(){
+    float a,b;
+    for(;;){
+        switch(tok.getnext()){
+        case T_INT:case T_FLOAT:
+            stack.push(tok.getfloat());
+            break;
+        case T_DOT:
+            printf("%f\n",stack.pop());
+            break;
+        case T_END:
+            return;
+        case T_SEMICOLON:
+        case T_COMMA:
+            {
+                extern CmdList cmds;
+                float f = stack.pop();
+                Synth *s = cursynth->build();
+                NoteCmd *cmd = new NoteCmd(s,f);
+                cmds.add(cmd);
+            }
+            break;
+        case T_PLUS:
+            stack.push(stack.pop()+stack.pop());
+            break;
+        case T_MUL:
+            stack.push(stack.pop()*stack.pop());
+            break;
+        case T_DIV:
+            b = stack.pop();
+            a = stack.pop();
+            stack.push(a/b);
+            break;
+        case T_MINUS:
+            b = stack.pop();
+            a = stack.pop();
+            stack.push(a-b);
+            break;
+        case T_MOD:
+            b = stack.pop();
+            a = stack.pop();
+            stack.push(fmodf(a,b));
+            break;
+        case T_DUP:
+            a = stack.pop();
+            stack.push(a);
+            stack.push(a);
+            break;
+        case T_RAND: // a b rand -> rand in [a,b)
+            b = stack.pop();
+            a = stack.pop();
+            a = drand48()*(b-a)+a;
+            stack.push(a);
+            break;
+        default:
+            throw NoteException(tok.getstring());
+        }
+    }
+}
+
 void Parser::parse(const char *buf){
     std::string a,b,c;
     int t;
-    
     std::string line = buf;
     tok.reset(buf);
     
@@ -56,22 +115,9 @@ void Parser::parse(const char *buf){
             switch(tok.getnext()){
             case T_END:
                 return;
-            case T_PLUS:
-                assertsynth();
-                for(;;){
-                    extern CmdList cmds;
-                    Synth *s = cursynth->build();
-                    float f = tok.getnextfloat();
-                    NoteCmd *cmd = new NoteCmd(s,f);
-                    cmds.add(cmd);
-                    
-                    t = tok.getnext();
-                    if(t==T_SEMICOLON || t==T_END)
-                        break;
-                    else if(t!=T_COMMA)
-                        throw SyntaxException();
-                }
-                break;    
+            case T_COLON:// note sequence
+                parseNotes();
+                break;
             case T_NEWSYNTH:
                 a = getnextident();
                 cursynth = new SynthDef();

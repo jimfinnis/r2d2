@@ -62,6 +62,22 @@ public:
     UnknownGenException(std::string name)
                 : Exception("unknown gen "+name){}
 };
+
+class NoteException : public Exception {
+public:
+    NoteException(std::string name)
+                : Exception("unknown note word '"+name+"'"){}
+};
+
+class StackUnderflowException : public Exception {
+public:
+    StackUnderflowException() : Exception("stack underflow"){}
+};
+
+class StackOverflowException : public Exception {
+public:
+    StackOverflowException() : Exception("stack Overflow"){}
+};
     
 
 #endif /* __EXCEPTIONS_H */

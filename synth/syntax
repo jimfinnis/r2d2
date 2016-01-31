@@ -41,7 +41,24 @@ Add links with
 
 Play notes with
 
-+ <freq>,<freq>,...;
+: <freq>,<freq>,...;
+
+Each note is separated by commas or semicolons, and terminated
+by either (syntactic sugar!)
+What this is really doing is running the note language:
+number : stack a number
+;,     : pop from the stack and play
+*-/+%  : binary operators (e.g. "100 100+,")
+d      : duplicate top of stack
+r      : stack random number generated from two numbers on top
+         of stack (e.g "100 200 r," will play a random freq from 100
+         200).
+
+So we can do
+    :400 d,       # play a 400 but keep it 
+    :-100 100 r+d, # add random val and play it
+    :-100 100 r+d, # add random val and play it
+    :-100 100 r+d, # add random val and play it
 
     
 

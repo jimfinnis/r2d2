@@ -9,7 +9,12 @@
 *c,     :   T_COMMA
 *c;     :   T_SEMICOLON
 *c+     :   T_PLUS
+*c/     :   T_DIV
+*c-     :   T_MINUS
+*c*     :   T_MUL
+*c%     :   T_MOD
 *c:     :   T_COLON
+*c.     :   T_DOT
 
 *d->    :   T_ARROW
 
@@ -19,6 +24,8 @@ s : T_S
 m : T_M
 g : T_G
 p : T_P
+d : T_DUP
+r : T_RAND
 done : T_DONE
 out : T_OUT
 

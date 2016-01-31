@@ -59,8 +59,8 @@ public:
         }
         /*
            for(int i=0;i<nlevs;i++){
-            printf("Level %d lev %f time %f acctime %f\n",i,
-                   levels[i],times[i],acctimes[i]);
+           printf("Level %d lev %f time %f acctime %f\n",i,
+           levels[i],times[i],acctimes[i]);
            }
          */
         prepped=true;
@@ -91,6 +91,7 @@ public:
                 out[i]=levels[0];
             else if(nextlev<0){ // finished
                 out[i]=levels[nlevs-1];
+//                if(!done)printf("DONE AT %f\n",time);
                 done=true;
             } else {
                 if(time>acctimes[nextlev]){
@@ -104,7 +105,7 @@ public:
                 out[i] = lerp(levels[nextlev-1],levels[nextlev],
                               (time-acctimes[nextlev-1])/times[nextlev]);
             }
-//            printf("Level %d lev %f time %f acctime %f\n",i,
+//            printf("%f,%d,%f,%d\n",time,nextlev,out[i],done?1:0);
         }
         scaleOut(nframes);
     }
