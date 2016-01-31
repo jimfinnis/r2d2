@@ -19,6 +19,7 @@ public:
     Synth(){
         head=NULL;
         done=false;
+        out=NULL;
     }
     
     // add generators in reverse order of execution, ideally
@@ -41,9 +42,7 @@ public:
 
     virtual void update(int nframes) {
         if(nframes>MAXFRAMESIZE){
-            printf("%d is too big (maxframesize %d)\n",
-                   nframes,MAXFRAMESIZE);
-            exit(1);
+            throw Exception("Update too big for maxframesize");
         }
         
         done=true;
@@ -58,6 +57,8 @@ public:
     
     /// get the output gen's buffer
     virtual float *getout(){
+        if(!out)
+            throw Exception("no output in synth");
         return out->out;
     }
     

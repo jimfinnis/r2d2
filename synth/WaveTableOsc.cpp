@@ -23,10 +23,12 @@ WaveTableOsc::WaveTableOsc(void) : Gen("wavetable") {
     addin("amp",WAVEOSC_AMP);
     addin("fm",WAVEOSC_FM);
     recalcinterval=256;
+    harmonics=2048;
     for (int idx = 0; idx < numWaveTableSlots; idx++) {
         waveTables[idx].waveTable = 0;
     }
     fmamount=1;
+    harmset=typeset=false;
     reset();
     triangleOsc();
 }
@@ -90,6 +92,9 @@ void WaveTableOsc::update(int nframes){
     amp = amp?amp:floatOnes;
     float *fm = ins[WAVEOSC_FM];
     fm = fm?fm:floatZeroes;
+    
+    if(harmset && !typeset)
+        throw Exception("harmonic set without type");
     
     for(int i=0;i<nframes;i++){
         // recalc freq every now and then
@@ -288,8 +293,7 @@ void WaveTableOsc::fillTables(double *freqWaveRe, double *freqWaveIm, int numSam
     delete [] ai;
 }
 
-void WaveTableOsc::sawOsc(void) {
-    int tableLen = 2048;    // to give full bandwidth from 20 Hz
+void WaveTableOsc::sawOsc(int tableLen) {
     int idx;
     double *freqWaveRe = new double [tableLen];
     double *freqWaveIm = new double [tableLen];
@@ -311,8 +315,7 @@ void WaveTableOsc::sawOsc(void) {
     delete [] freqWaveIm;
 }
 
-void WaveTableOsc::squareOsc(void) {
-    int tableLen = 2048;    // to give full bandwidth from 20 Hz
+void WaveTableOsc::squareOsc(int tableLen) {
     int idx;
     double *freqWaveRe = new double [tableLen];
     double *freqWaveIm = new double [tableLen];

@@ -51,7 +51,6 @@ class LPF : public Gen {
     
     double qmod,fmod; // modulation amounts
     
-    bool reinit; //!< set to recalculate coeffs
 public:
     LPF();
     ~LPF(){}

@@ -1,0 +1,21 @@
+newsynth worried
+
+# Hollow sounding, querulous. 
+
+env         ENVFM       0 0,    0.2 -1,   0.7 0,    1.2 1
+env         ENVAMP      0 0,    0.1 1,    1 1,      1.2 0, 2 0; done
+
+g wave      SQUARE      p fm 100, harmonics 8, type square;  out
+
+g perlin    PERL        p freq 200
+g mix2      ADD         p ampa 0.7, ampb 0.8
+g const     ONE
+
+PERL->ADD:a
+ONE->ADD:b
+ENVAMP->ADD:amp
+
+ENVFM->SQUARE:fm
+ADD ->SQUARE:amp
+
+:600,750;

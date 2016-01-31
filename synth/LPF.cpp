@@ -89,28 +89,11 @@ LPF::LPF() : Gen("lpf") {
     q2=q = 1.0; // resonance
     gain = 1.0; // overall gain
     fc2=fc = 8000.0; // cutoff
-    reinit=true;
 }
 
 
 
 void LPF::init(){
-    float *coef = iir.coef + 1;     /* Skip k, or gain */
-    extern float samprate;
-    double fs= samprate;
-    double k = gain;
-    for(unsigned int i=0;i<iir.length;i++){
-        double a0 = protoCoef[i].a0;
-        double a1 = protoCoef[i].a1;
-        double a2 = protoCoef[i].a2;
-        double b0 = protoCoef[i].b0;
-        double b1 = protoCoef[i].b1/q2;
-        double b2 = protoCoef[i].b2;
-        szxform(&a0, &a1, &a2, &b0, &b1, &b2, fc2, fs, &k, coef);
-        coef+=4;
-    }
-    iir.coef[0]=k;
-    reinit=false;
 }
 
 void LPF::update(int nframes){
@@ -129,11 +112,31 @@ void LPF::update(int nframes){
     float *in = ins[0];
     float *qmods = ins[1]?ins[1]:floatZeroes;
     float *fmods = ins[2]?ins[2]:floatZeroes;
-    if(reinit||ins[1]||ins[2])init();
+    q2=q+qmod*qmods[0];
+    fc2=fc+fmod*fmods[0];
+    
+    ///////////// INIT /////////////////////
+    
+    float *coef = iir.coef + 1;     /* Skip k, or gain */
+    extern float samprate;
+    double fs= samprate;
+    double k = gain;
+    
+    for(unsigned int i=0;i<iir.length;i++){
+        double a0 = protoCoef[i].a0;
+        double a1 = protoCoef[i].a1;
+        double a2 = protoCoef[i].a2;
+        double b0 = protoCoef[i].b0;
+        double b1 = protoCoef[i].b1/q2;
+        double b2 = protoCoef[i].b2;
+        szxform(&a0, &a1, &a2, &b0, &b1, &b2, fc2, fs, &k, coef);
+        coef+=4;
+    }
+    iir.coef[0]=k;
+    
+    ///////////// END OF FILTER INIT ////////
+    
     for(int i=0;i<nframes;i++){
-        q2=q+qmod*qmods[i];
-        fc2=fc+fmod*fmods[i];
-        
         float input = *in++;
         
         coef_ptr = iir.coef;                /* coefficient pointer */

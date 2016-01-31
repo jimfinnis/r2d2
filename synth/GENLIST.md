@@ -73,6 +73,26 @@ Simple 2-input mixer.
 |a| input A
 |b|input B|
 
+## add (Utils.h)
+Signal adder
+### inputs
+|name|function|
+|---|---|
+|a| input A
+|b|input B|
+## mul (Utils.h)
+Signal multiplier
+### inputs
+|name|function|
+|---|---|
+|a| input A
+|b|input B|
+## const (Utils.h)
+Outputs a constant
+### params
+|name|function|default|
+|---|---|---|
+|val|value of constant|1|
         
 ## noise (Noise.h)
 White noise generator.

@@ -14,6 +14,7 @@
 #include "cmdlist.h"
 
 #define LOOPTILLDONE 1
+//#define TESTSYNTH 1
 jack_port_t *output_port;
 
 /// table of midi note "frequencies" adjusted by sample rate
@@ -135,14 +136,14 @@ int main(int argc,char *argv[]){
     
 #if TESTSYNTH
     NoteCmd *c = cmds.next();
-    if(!c)printf("NO COMMANDS");
+    if(!c)printf("NO COMMANDS\n");
     else {
         for(int i=0;i<400;i++){
             c->synth->update(100);
-//            float *outbuf = c->synth->getout();
-//            for(int i=0;i<100;i++){
-//                printf("%f\n",outbuf[i]);
-//            }
+            float *outbuf = c->synth->getout();
+            for(int i=0;i<100;i++){
+                printf("%f\n",outbuf[i]);
+            }
         }
     }
     exit(1);

@@ -45,9 +45,10 @@ protected:
     double freq;
     double fmamount;
     int recalcinterval; // recalculate freq every n samples (FM rate)
+    bool harmset,typeset;
     
     bool fixed; // fixed frequency, or multiple of key frequency
-    
+    int harmonics; // number of harmonics in generated tables
     // list of wavetables
     int numWaveTables;
     waveTable waveTables[numWaveTableSlots];
@@ -63,8 +64,8 @@ public:
     // INITIALIZERS
     
     void waveOsc(double *waveSamples, int tableLen);
-    void sawOsc();
-    void squareOsc();
+    void sawOsc(int tableLen=2048);
+    void squareOsc(int tableLen=2048);
     void triangleOsc();
     void sinOsc();// don't use, it's pointless :)
     
@@ -72,11 +73,20 @@ public:
         if(!strcmp("freq",k))setFrequency(atof(v));
         else if(!strcmp("fm",k))fmamount=atof(v);
         else if(!strcmp("recalc",k))recalcinterval=atoi(v);
+        else if(!strcmp("harmonics",k)){
+            if(typeset)
+                throw Exception("Harmonics must be set before type");
+            harmonics=atoi(v)*2;
+            if(!((harmonics != 0) && !(harmonics & (harmonics - 1))))
+                throw Exception("Wave requires power-of-two harmonics");
+            harmset=true;
+        }
         else if(!strcmp("type",k)){
+            typeset=true;
             if(!strcmp("saw",v))
-                sawOsc();
+                sawOsc(harmonics);
             else if(!strcmp("square",v))
-                squareOsc();
+                squareOsc(harmonics);
             else if(!strcmp("triangle",v))
                 triangleOsc();
             else 

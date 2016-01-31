@@ -36,6 +36,12 @@ Gen *GenDef::build(){
         g = new Perlin();
     else if(name == "lpf")
         g = new LPF();
+    else if(name == "add")
+        g = new Add();
+    else if(name == "mul")
+        g = new Mul();
+    else if(name == "const")
+        g = new Const();
     else
         throw BadSynthException(name);
     

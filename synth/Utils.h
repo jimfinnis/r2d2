@@ -38,6 +38,69 @@ public:
     }
 };
 
+/// Adder
+
+class Add : public Gen {
+    float amp1,amp2;
+public:
+    Add() : Gen("add") {
+        addin("a",0);
+        addin("b",1);
+        addin("amp",2);
+    }
+    virtual ~Add(){}
+    
+    virtual void update(int nframes){
+        float *in1 = ins[0]?ins[0]:floatZeroes;
+        float *in2 = ins[1]?ins[1]:floatZeroes;
+        float *amp = ins[2]?ins[2]:floatOnes;
+        for(int i=0;i<nframes;i++){
+            out[i]=(in1[i] + in2[i])*amp[i];
+        }
+    }
+};
+
+/// Multiplier
+
+class Mul : public Gen {
+public:
+    Mul() : Gen("mul") {
+        addin("a",0);
+        addin("b",1);
+        addin("amp",2);
+    }
+    virtual ~Mul(){}
+    
+    virtual void update(int nframes){
+        float *in1 = ins[0]?ins[0]:floatZeroes;
+        float *in2 = ins[1]?ins[1]:floatZeroes;
+        float *amp = ins[2]?ins[2]:floatOnes;
+        for(int i=0;i<nframes;i++){
+            out[i]=(in1[i] * in2[i])*amp[i];
+        }
+    }
+};
+
+/// Constant
+
+class Const : public Gen {
+    float c;
+public:
+    Const() : Gen("const") {c=1;}
+    virtual ~Const(){}
+    
+    virtual void update(int nframes){
+        for(int i=0;i<nframes;i++){
+            out[i]=c;
+        }
+    }
+    virtual bool setParam(const char *k,const char *v){
+        if(!strcmp("val",k))c=atof(v);
+        else return Gen::setParam(k,v);
+        return true;
+    }
+};
+
 
 
 #endif /* __UTILS_H */
