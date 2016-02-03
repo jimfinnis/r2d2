@@ -22,14 +22,22 @@ Painful stimuli also release FEAR.
 These hormones cascade - singly and directly - into corresponding
 "sound urge" hormones.
 
-The robot constantly checks the hormone levels, and if the highest level
-hormone is above a threshold it plays an appropriate sound and reduces
+The robot constantly checks the urge levels, and for each hormone its
+level (once above a certain threshold) determines the chance that it
+will be triggered. If it is, it plays an appropriate sound and reduces
 that sound hormone level by some large percentage - leaving the actual
 primary hormone untouched. The intuition here is that the urge to make
-a sound is secondary to and triggered by the underlying neurochemical state,
-and that succumbing to the urge relieves it without modifying the underlying
-state.
+a sound is secondary to and triggered by the underlying neurochemical
+state, and that succumbing to the urge relieves it without modifying
+the underlying state.
 
+The chance mechanism is used to avoid hormones releasing at exactly
+the same level all the time - both to avoid periodicity, and to permit
+the actual level to be used as a parameter for the sound. 
+
+It's also possible that primary hormone levels may inhibit the chance?
+Perhaps "busyness" might inhibit non-burble releases by lowering it
+globally?
 
 Then all we do is have two threads. Thread 1 is performing the main code,
 updating the robot and doing what it needs to do, and updating the above
@@ -39,9 +47,21 @@ while true:
     delay for very short while (~0.1s)
     S = lock, fetch hormone set, unlock
     [h,c] = maximum hormone in set and its concentration
-    if c>threshold:
+    if rand>(c-threshold)*some factor:
         play sound for hormone h (blocking)
         lock, reduce hormone h, unlock
+
+Sound generation modulation
+While each emotion has a sound, the sounds themselves - including
+burblage - are modulated by the primary hormone levels. Thus, each
+sound is "tinted" by the robot's state. This applies to the timbre
+of the sound and the dynamics (particularly when it comes to utterances)
+
+Types of sound
+Burbles, cries and utterances.
+Utterances - which correspond to short spoken sentences - match
+English intonation. A rapid rise-fall at the end is an exclamation,
+a rise is an interrogative. 
 
 
 Extensions:
@@ -53,3 +73,24 @@ Contentment: happy and very not hungry
 Bored: not happy and not hungry?
 Trepidation: a bit fearful and uncertain
 Brave: fearful and happy
+
+An aside:
+
+Or possibly we could use something like a Lovheim cube?
+                        Ser.    Dop.    Noradren.
+Shame/humiliation 	Low 	Low 	Low
+Distress/anguish 	Low 	Low 	High
+Fear/terror 	        Low 	High 	Low
+Anger/rage      	Low 	High 	High
+Contempt/disgust 	High 	Low 	Low
+Surprise 	        High 	Low 	High
+Enjoyment/Joy 	        High 	High 	Low
+Interest/excitement 	High 	High 	High
+
+or the PAD model, where the three scales are:
+pleasure/displeasure
+arousal/nonarousal
+dominant/submissive
+
+
+
