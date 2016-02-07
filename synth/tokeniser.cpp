@@ -6,6 +6,8 @@
 
 #include "tokeniser.h"
 
+namespace sonicAESSynth {
+
 void Tokeniser::dprintf(const char *s,...)
 {
     if(trace)
@@ -356,4 +358,5 @@ void Tokeniser::settokens(TokenRegistry *k)
             }
         }
     }
+}
 }

@@ -7,6 +7,8 @@
 #ifndef __CMDLIST_H
 #define __CMDLIST_H
 
+namespace sonicAESSynth {
+
 /// this is the command list, which sends commands from the main program
 /// to the process() thread
 
@@ -55,5 +57,6 @@ public:
     }
 };       
 
+}
 
 #endif /* __CMDLIST_H */

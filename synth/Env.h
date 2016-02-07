@@ -9,6 +9,8 @@
 
 #include "ctype.h"
 
+namespace sonicAESSynth {
+
 inline float lerp(float a,float b,float t){
     return (1.0f-t)*a + t*b;
 }
@@ -111,4 +113,5 @@ public:
     }
 };
 
+}
 #endif /* __ENV_H */

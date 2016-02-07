@@ -13,6 +13,8 @@
 
 #include <sstream>
 
+namespace sonicAESSynth {
+
 
 //////////////////////////////////////////////////////////////////
 
@@ -214,4 +216,6 @@ void Parser::parse(const char *buf){
         printf("Token: %s\n",tok.getstring());
         exit(1);
     }
+}
+
 }

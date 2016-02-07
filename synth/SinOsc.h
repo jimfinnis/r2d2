@@ -17,6 +17,8 @@
 #define SINOSC_PM 1
 #define SINOSC_FM 2
 
+namespace sonicAESSynth {
+
 class SinOsc : public Gen {
 private:
     static float *table;
@@ -103,7 +105,7 @@ public:
     }
 };
 
-
+}
 
 
 

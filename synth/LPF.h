@@ -12,6 +12,8 @@
 #include <math.h>
 #include "gen.h"
 
+namespace sonicAESSynth {
+
 /* FILTER INFORMATION STRUCTURE FOR FILTER ROUTINES */
 
 struct FILTER {
@@ -67,4 +69,5 @@ public:
     virtual void update(int nframes);
 };
 
+}
 #endif /* __LPF_H */

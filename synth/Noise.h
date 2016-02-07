@@ -12,6 +12,8 @@
 //inputs
 #define NOISE_AMP 0
 
+namespace sonicAESSynth {
+
 class Noise : public Gen {
 public:
     Noise() : Gen("noise"){
@@ -29,5 +31,5 @@ public:
     }
 };
     
-
+}
 #endif /* __NOISEGENS_H */

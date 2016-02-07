@@ -14,6 +14,8 @@
 #include "synthdef.h"
 
 
+namespace sonicAESSynth {
+
 
 /// the parser may either set internal state (creating or
 /// modifying synthdefs etc.) or it can add one of these
@@ -97,7 +99,7 @@ public:
     void parse(const char *buf);
 };
 
-
+}
 
 
 #endif /* __PARSER_H */

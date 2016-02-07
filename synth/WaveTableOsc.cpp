@@ -19,6 +19,8 @@
 #include <stdio.h>
 #include "WaveTableOsc.h"
 
+namespace sonicAESSynth {
+
 WaveTableOsc::WaveTableOsc(void) : Gen("wavetable") {
     addin("amp",WAVEOSC_AMP);
     addin("fm",WAVEOSC_FM);
@@ -407,4 +409,6 @@ void WaveTableOsc::waveOsc(double *waveSamples, int tableLen) {
     
     delete [] freqWaveRe;
     delete [] freqWaveIm;
+}
+
 }

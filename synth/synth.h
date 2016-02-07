@@ -11,6 +11,11 @@
 #include <stdio.h>
 #include "gen.h"
 
+namespace sonicAESSynth {
+
+/// a synthesiser (a collection of Gen) instantiated by a
+/// SynthDef (a collection of GenDef)
+
 class Synth  {
     Gen *head,*tail;
     Gen *out;
@@ -67,5 +72,5 @@ public:
     
 #endif
 };
-
+}
 #endif /* __SYNTH_H */

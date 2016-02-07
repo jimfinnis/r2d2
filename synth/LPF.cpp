@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include "LPF.h"
 
+namespace sonicAESSynth {
+
 static double Pi;
 
 static BIQUAD protoCoef[FILTER_SECTIONS]=
@@ -168,4 +170,4 @@ void LPF::update(int nframes){
     }
 }
 
-
+}

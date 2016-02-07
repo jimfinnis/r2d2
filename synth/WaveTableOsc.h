@@ -26,6 +26,8 @@
 
 #define doLinearInterp 1
 
+namespace sonicAESSynth {
+
 typedef struct {
     double topFreq;
     int waveTableLen;
@@ -113,5 +115,5 @@ inline void WaveTableOsc::setFrequency(double f) {
 inline void WaveTableOsc::setPhaseOffset(double offset) {
     phaseOfs = offset;
 }
-
+}
 #endif

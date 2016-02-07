@@ -14,6 +14,8 @@
 #include "Perlin.h"
 #include "LPF.h"
 
+namespace sonicAESSynth {
+
 /// global directory of synths
 std::map<std::string,SynthDef *>synths;
 
@@ -97,4 +99,6 @@ Synth *SynthDef::build(){
         in->ins[in->getInputByName(inspec.second.c_str())] = outgen->out;
     }
     return s;
+}
+
 }

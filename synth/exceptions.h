@@ -10,6 +10,8 @@
 #include <string>
 #include <exception>
 
+namespace sonicAESSynth {
+
 class Exception : public std::exception {
     std::string msg;
 public:
@@ -76,8 +78,14 @@ public:
 
 class StackOverflowException : public Exception {
 public:
-    StackOverflowException() : Exception("stack Overflow"){}
+    StackOverflowException() : Exception("stack overflow"){}
 };
-    
+
+class JackInitException : public Exception {
+public:
+    JackInitException(std::string s) : Exception("JACK initialisation error: "+s){}
+};
+
+}    
 
 #endif /* __EXCEPTIONS_H */

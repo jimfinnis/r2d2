@@ -12,6 +12,8 @@
  * identifiers.
  */
 
+namespace sonicAESSynth {
+
 class Tokeniser;
 
 struct TokenRegistry
@@ -291,4 +293,5 @@ private:
     ITokeniserErrorHandler *handler;
 };
 
+}
 #endif /* __TOKENISER_H */

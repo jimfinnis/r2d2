@@ -8,6 +8,8 @@
 
 #define MAXPROFS 1024
 
+namespace sonicAESSynth {
+
 struct profd {
     const char *name,*genname;
     unsigned long time;
@@ -38,4 +40,5 @@ void Synth::showprofile(){
     for(int i=0;i<ct;i++,p++){
         printf("%-20s %10s %-10ld\n",p->genname,p->name,p->time);
     }
+}
 }

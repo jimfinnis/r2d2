@@ -14,6 +14,8 @@
 #include "exceptions.h"
 #include "synth.h"
 
+namespace sonicAESSynth {
+
 /// the definition of a generator, which can build generators. It's 
 /// a factory with an additional map of parameters to set into
 /// the constructed gen.
@@ -89,4 +91,5 @@ public:
 /// global directory of synths
 extern std::map<std::string,SynthDef *>synths;
 
+}
 #endif /* __SYNTHDEF_H */

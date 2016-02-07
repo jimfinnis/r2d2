@@ -23,6 +23,8 @@
 #include <time.h>
 #endif
 
+namespace sonicAESSynth {
+
 extern float floatZeroes[MAXFRAMESIZE];
 extern float floatOnes[MAXFRAMESIZE];
 
@@ -134,5 +136,5 @@ public:
 };
 
 
-
+}
 #endif /* __GEN_H */

@@ -9,6 +9,8 @@
 
 #include "gen.h"
 
+namespace sonicAESSynth {
+
 class PerlinNoise
 {
 public:
@@ -126,4 +128,5 @@ public:
     }
 };
 
+}
 #endif /* __PERLIN_H */
