@@ -1,9 +1,11 @@
-# r2d2
-Some code inspired by a facebook conversation - a hormonal robot which uses R2D2-esque beeps to indicate its status. See the "notes" textfile for more information.
+# sonicAES
+Some code inspired by a facebook conversation - a hormonal robot which
+uses sounds, such as beeps and whistles, to indicate its status. See
+the "notes" textfile for more information.
 
 ## Synth system
-This is a jackd client implementing a blocking monosynth (since R2 is
-monophonic).
+This is a jackd client implementing a blocking monosynth (since animal
+vocalisations are generally monophonic).
 It works by parsing commands from the user, which typically create
 and edit SynthDef objects (synthesizer definitions), which contain 
 GenDefs (generator definitions) and the links between them. 
