@@ -1,0 +1,28 @@
+[`io,`time,
+ "udp/build/udp"] each {i library drop}
+
+require "hormone.ang" drop
+
+[`light,`data,`charge,
+ `hlight
+ ] each {i udp$addvar}
+
+0!light
+0!data
+0!charge
+
+0!hlight
+
+0.1 hormone$setinterval
+
+[%] hormone$new !HLight
+
+
+(
+    {
+        hormone$waitinterval
+        ?light ?HLight?`update@ !hlight
+        udp$poll
+    }
+)@
+    

@@ -110,111 +110,102 @@ void Parser::parse(const char *buf){
     int t;
     std::string line = buf;
     tok.reset(buf);
-    
-    
-    try {
-        for(;;){
-            switch(tok.getnext()){
-            case T_END:
-                return;
-            case T_COLON:// note sequence
-                parseNotes();
-                break;
-            case T_NEWSYNTH:
+    for(;;){
+        switch(tok.getnext()){
+        case T_END:
+            return;
+        case T_COLON:// note sequence
+            parseNotes();
+            break;
+        case T_NEWSYNTH:
+            a = getnextident();
+            cursynth = new SynthDef();
+            synths[a]=cursynth;
+            break;
+        case T_S:
+            a = getnextident();
+            cursynth = synths[a];
+            break;
+        case T_G:
+            assertsynth();
+            a = getnextident();
+            b = getnextident();
+            curgen = cursynth->add(a,b);
+            break;
+        case T_M:
+            assertsynth();assertgen();
+            a = getnextident();
+            curgen = cursynth->findGen(a);
+            break;
+        case T_P:
+            assertsynth();assertgen();
+            for(;;){
                 a = getnextident();
-                cursynth = new SynthDef();
-                synths[a]=cursynth;
-                break;
-            case T_S:
-                a = getnextident();
-                cursynth = synths[a];
-                break;
-            case T_G:
-                assertsynth();
-                a = getnextident();
-                b = getnextident();
-                curgen = cursynth->add(a,b);
-                break;
-            case T_M:
-                assertsynth();assertgen();
-                a = getnextident();
-                curgen = cursynth->findGen(a);
-                break;
-            case T_P:
-                assertsynth();assertgen();
-                for(;;){
-                    a = getnextident();
-                    switch(tok.getnext()){
-                    case T_IDENT:
-                    case T_INT:
-                    case T_FLOAT:
-                        break;
-                    default:
-                        printf("%d\n",tok.gettoken().i);
-                        throw UnexpectedException("ident or number",tok.getstring());
-                    }
-                    b = std::string(tok.getstring());
-                    curgen->setParam(a,b);
+                switch(tok.getnext()){
+                case T_IDENT:
+                case T_INT:
+                case T_FLOAT:
+                    break;
+                default:
+                    printf("%d\n",tok.gettoken().i);
+                    throw UnexpectedException("ident or number",tok.getstring());
+                }
+                b = std::string(tok.getstring());
+                curgen->setParam(a,b);
+                t = tok.getnext();
+                if(t==T_SEMICOLON || t==T_END)
+                    break;
+                else if(t!=T_COMMA)
+                    throw SyntaxException();
+            }
+            break;
+        case T_IDENT:
+            assertsynth();
+            a = std::string(tok.getstring());
+            expect(T_ARROW,"->");
+            b = getnextident();
+            expect(T_COLON,":");
+            c = getnextident();
+            cursynth->addlink(a.c_str(),b.c_str(),c.c_str());
+            break;
+        case T_DONE:
+            assertgen();
+            curgen->setDoneMon();
+            break;
+        case T_OUT:
+            assertgen();
+            curgen->out=true;
+            break;
+            // special syntax to make an Env
+        case T_ENV:
+            assertsynth();
+            a = getnextident();
+            curgen = cursynth->add("env",a);
+            {
+                char lbuf[]="lx",tbuf[]="tx";
+                for(int ct=0;ct<10;ct++){
+                    lbuf[1]='0'+ct;
+                    tbuf[1]='0'+ct;
+                    float t = tok.getnextfloat();
+                    if(tok.iserror())
+                        throw UnexpectedException("time",tok.getstring());
+                    float l = tok.getnextfloat();
+                    if(tok.iserror())
+                        throw UnexpectedException("level",tok.getstring());
+                    curgen->setParam(tbuf,f2string(t));
+                    curgen->setParam(lbuf,f2string(l));
+                    
                     t = tok.getnext();
                     if(t==T_SEMICOLON || t==T_END)
                         break;
                     else if(t!=T_COMMA)
                         throw SyntaxException();
                 }
-                break;
-            case T_IDENT:
-                assertsynth();
-                a = std::string(tok.getstring());
-                expect(T_ARROW,"->");
-                b = getnextident();
-                expect(T_COLON,":");
-                c = getnextident();
-                cursynth->addlink(a.c_str(),b.c_str(),c.c_str());
-                break;
-            case T_DONE:
-                assertgen();
-                curgen->setDoneMon();
-                break;
-            case T_OUT:
-                assertgen();
-                curgen->out=true;
-                break;
-                // special syntax to make an Env
-            case T_ENV:
-                assertsynth();
-                a = getnextident();
-                curgen = cursynth->add("env",a);
-                {
-                    char lbuf[]="lx",tbuf[]="tx";
-                    for(int ct=0;ct<10;ct++){
-                        lbuf[1]='0'+ct;
-                        tbuf[1]='0'+ct;
-                        float t = tok.getnextfloat();
-                        if(tok.iserror())
-                            throw UnexpectedException("time",tok.getstring());
-                        float l = tok.getnextfloat();
-                        if(tok.iserror())
-                            throw UnexpectedException("level",tok.getstring());
-                        curgen->setParam(tbuf,f2string(t));
-                        curgen->setParam(lbuf,f2string(l));
-                        
-                        t = tok.getnext();
-                        if(t==T_SEMICOLON || t==T_END)
-                            break;
-                        else if(t!=T_COMMA)
-                            throw SyntaxException();
-                    }
-                }
-                break;
-            default:
-                throw SyntaxException();
             }
+            break;
+        default:
+            throw SyntaxException();
         }
-    } catch (Exception e) {
-        printf("Exception in parsing: %s\n",e.what());
-        printf("Line: %s\n",line.c_str());
-        printf("Token: %s\n",tok.getstring());
-        exit(1);
     }
 }
 

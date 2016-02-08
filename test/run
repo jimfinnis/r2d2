@@ -1,0 +1,4 @@
+#!/bin/bash
+
+~/monitor/monitor -f foo.mon &
+angort sys.ang

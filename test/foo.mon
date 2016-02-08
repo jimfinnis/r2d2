@@ -1,0 +1,48 @@
+var {
+    float   light   1000 range 0 to 1
+    float   charge  1000 range 0 to 1
+    float   data    1000 range 0 to 1
+
+    float   hlight   1000 range 0 to 1
+}
+
+window size 800,600 {
+    frame 0,0 borderless {
+    graph 0,0 size 400,400 {
+        time 100
+        var light {col yellow width 1}
+        var hlight {col white width 1}
+    }
+    
+    frame 0,1,1,1 borderless {
+        slider 0,0,1,1 {
+            title "light"
+            out light var light
+            vertical immediate
+            initial 0
+            range 0 to 1
+        }
+        slider 1,0,1,1 {
+            title "charge"
+            out charge var charge
+            vertical immediate
+            initial 0
+            range 0 to 1
+        }
+        slider 2,0,1,1 {
+            title "data"
+            out data var data
+            vertical immediate
+            initial 0
+            range 0 to 1
+        }
+    }
+    momentary 1,1 { title "quit"
+          special "quit"
+          key "q"
+          size 80,80}
+    }
+    
+}
+    
+

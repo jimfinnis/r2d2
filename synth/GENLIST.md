@@ -22,7 +22,7 @@ amplitude modulates. Both FM and PM inputs are divided by 100.
 |name|function|
 |---|---|
 |amp|amp modulation|
-pm|phase modulation|
+|pm|phase modulation|
 |fm|freq modulation|
 
         

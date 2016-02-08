@@ -22,6 +22,9 @@ public:
     virtual const char* what() const throw(){
         return msg.c_str();
     }
+    virtual std::string whats() const throw(){
+        return msg;
+    }
 };
 
 class BadSynthException : public Exception {
