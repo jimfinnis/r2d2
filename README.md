@@ -34,8 +34,9 @@ newsynth foo
 # which makes the current generator a donemon.
 #
 # We need to be careful with the order in which gens are created: put
+# first
 # those gens which are earlier in the directed graph which forms the
-# synth patch first. Here, the envelope generator feeds into the 
+# synth patch. Here, the envelope generator feeds into the 
 # oscillator, so we add it before the oscillator.
 
 env         env1        0 0, 0.01 1, 0.7 0;         done

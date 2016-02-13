@@ -3,26 +3,50 @@
 
 require "hormone.ang" drop
 
+require "fuzzy.ang" import
+
 [`light,`data,`charge,
- `hlight
+ `hlight,`hburble,`QUIT
  ] each {i udp$addvar}
 
 0!light
 0!data
 0!charge
 
+0!hburble
 0!hlight
 
 0.1 hormone$setinterval
 
-[%] hormone$new !HLight
+# creating hormones
+
+[% `hasOutSig 0] hormone$new !HLight
+[% `release 0.1, `inSigCent 0.7,`inSigWidth 1.5] hormone$new !HBurble
+
+:frand rand 30000 % 30000.0/;
+
+:trig |h,act:v|
+    frand
+    ?h?`get@ 0.2 * 
+    < if
+        ?act@
+        ?h?`zero@
+    then
+;
 
 
 (
     {
+        ?QUIT ifleave # QUIT=1 sent by monitor on quitting
         hormone$waitinterval
+        
         ?light ?HLight?`update@ !hlight
+        ?light ?HBurble?`update@ !hburble
+        
+        ?HBurble (snark) trig
+        
+        
         udp$poll
     }
 )@
-    
+quit
