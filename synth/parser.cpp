@@ -109,6 +109,7 @@ void Parser::parse(const char *buf){
     std::string a,b,c;
     int t;
     std::string line = buf;
+    printf("INPUT: %s\n",buf);
     tok.reset(buf);
     for(;;){
         switch(tok.getnext()){

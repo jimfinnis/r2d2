@@ -144,5 +144,5 @@ UDPServer udpServer;
     clock_gettime(CLOCK_MONOTONIC,&progstart);
     udpServer.setListener(&udpServerListener);
     udpServer.start(UDPSERVER_PORT);
-    printf("Init.\n");
+    fprintf(stderr,"Initialising UDP plugin, %s %s\n",__DATE__,__TIME__);
 }

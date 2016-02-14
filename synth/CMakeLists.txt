@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 project(synth)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(Jack REQUIRED)
 find_package(Threads REQUIRED)
 

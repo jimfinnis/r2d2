@@ -1,5 +1,5 @@
-include "frame.ang"
-
+include "frame.ang" # Framework
+include "sounds.ang" # User sounds
 # create inputs
 [`light,`data,`charge ] each {i udp$addvar}
 
@@ -17,7 +17,8 @@ include "frame.ang"
 # add sound trigger hormones
     
 [% `name `hburble,
- `release 0.1, `inSigCent 0.7,`inSigWidth 1.5] (snark) addTrigger !HBurble
+ `release 0.1, `inSigCent 0.7,`inSigWidth 1.5] 
+(`burble sounds$play) addTrigger !HBurble
 
 :updateSystem
     ?light ?HLight?`update@ !hlight

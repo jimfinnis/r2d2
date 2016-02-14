@@ -1,0 +1,39 @@
+# Sound playing utilities.
+
+"synth/build/synth" library drop
+
+[] 0 40 range each { 440.0 2.0 i 12.0 / pow *,}!Notes
+
+[0,2,4,5,7,9,11,12] (?Notes get) map !Major
+
+
+private
+:randtimes |n:| 0 rand ?n % 1 + range;
+:choose |l:| rand ?l len % ?l get;
+:choosen |l,n:| [] ?n randtimes each {?l choose,};
+
+
+# uniform between a and b
+:frand |a,b:| rand 30000 % 30000.0 / ?b ?a - * ?a +;
+
+# takes a generator name to modify, and a hash
+# of parameter,value for the parameters to change
+:mod |gen,hash:|
+    "m " ?gen + " p " +
+    [] ?hash each {i " " + ival +,} "," intercalate + ";" +
+    synth$cmd;
+
+# play a note
+:n |freq:| ":" ?freq + ";" + synth$cmd;
+    
+
+public
+:play |name:| ?name ?Defs get snd @;
+
+:initsounds 
+    ?Defs each {ival fst synth$cmd}
+    none synth$init
+    synth$initaudio
+;
+
+private # falls through into user sounds defs
