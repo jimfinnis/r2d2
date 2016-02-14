@@ -1,0 +1,51 @@
+[`io,`time,
+ "udp/build/udp"] each {i library drop}
+
+require "hormone.ang" drop
+require "fuzzy.ang" drop
+
+# functions the user must define
+
+# update the system, running hormones etc.
+global updateSystem
+
+
+
+# add the QUIT special variable - we exit when this goes true
+`QUIT udp$addvar
+
+# list of trigger hormones
+[] !Triggers
+
+# add a hormone as a trigger, with its action. Takes a hormone
+# definition hash, and thus performs the same action as hormone$new
+# but adds the hormone to the triggers list.
+:addTrigger |h,action:|
+    ?h hormone$new !h
+    [?h,?action] ?Triggers push
+    ?h
+;
+
+# update triggers, checking to see if each trigger has fired. If
+# so, perform the action and zero the trigger hormone.
+:updateTriggers |:h|
+    ?Triggers each {
+        i fst!h
+        rand 30000 % 30000.0/
+        ?h?`get@ 0.2 * 
+        < if
+            i snd @
+            ?h?`zero@
+        then
+    }
+;
+
+:run
+    {
+        ?QUIT ifleave # QUIT=1 sent by monitor on quitting
+        hormone$waitinterval
+        updateSystem
+        updateTriggers
+        udp$poll
+    }
+;

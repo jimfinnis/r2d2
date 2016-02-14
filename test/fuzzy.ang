@@ -3,52 +3,35 @@
 package fuzzy
 private
 
-:clip |x:| 
-    ?x 1 > if
-        1
-    else 
-        ?x 0 < if
-            0
-        else
-            ?x
-        then
-    then
-;
 
 public
 
+# actual Zadeh operators
 :znot 1 swap -;
-
 :zor |x,y:| ?x ?y > if ?x else ?y then;
 :zand |x,y:| ?x ?y < if ?x else ?y then;
     
+# other useful operators
+:clip |x:| :"(x -- x clipped to between 0 and 1)"
+    cases
+        ?x 1 > if 1 case
+        ?x 0 < if 0 case
+        ?x otherwise
+;
 # value is 0 if less than a, 1 if greater than b
 :upramp |x,a,b:|
     ?x tofloat !x
-    ?x ?a < if
-        0
-    else
-        ?x ?b > if
-            1
-        else
-            ?x ?a -
-            ?b ?a - /
-        then
-    then
+    cases
+        ?x ?a < if 0 case
+        ?x ?b > if 1 case
+        ?x ?a - ?b ?a - / otherwise
 ;
 # value is 0 if less than a, 1 if greater than b
 :downramp |x,a,b:|
     ?x tofloat !x
-    ?x ?a < if
-        1
-    else
-        ?x ?b > if
-            0
-        else
-            1
-            ?x ?a -
-            ?b ?a - / -
-        then
-    then
+    cases
+        ?x ?a < if 1 case
+        ?x ?b > if 0 case
+        1 ?x ?a - ?b ?a - / - otherwise
 ;
 
