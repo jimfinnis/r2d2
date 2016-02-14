@@ -15,18 +15,33 @@ include "synth.ang"
 --EOT
 newsynth burble0
 env      ENVAMP    0 0, 0.01 1, 0.1 0; done
-g wave   SQUARE    out  
-ENVAMP->SQUARE:amp
+g sin    LFO       p mode fixed,freq 20;
+g wave   OSC1      
+g wave   OSC2
+g add    ADD       out
+OSC1->ADD:a
+OSC2->ADD:b
+ENVAMP->ADD:amp
+LFO->OSC1:fm
+LFO->OSC2:fm
 --EOT
 ,
 (
     "s burble0" synth$cmd
     7 randtimes each {
-        "SQUARE" [%`type [`saw,`square] choose] mod
-        "ENVAMP" [%
-                  `t1 0.01 0.06 frand,
-                  `t2 0.1 0.2 frand,
-                  `l1 0.3 0.7 frand] mod
+        `OSC1   [%
+                 `type <<[`saw,`square]>> choose, 
+                 `fm 10 coin if 10 100 frand else 0 then
+                 ] mod
+        `OSC2   [%
+                 `type <<[`saw,`square]>> choose, 
+                 `fm 10 coin if 10 100 frand else 0 then,
+                 `freq <<[0,1.04,1.03,1.02,2,0.5]>> choose
+                 ] mod
+        `ENVAMP [%
+                 `t1 0.01 0.06 frand,
+                 `t2 0.1 0.2 frand,
+                 `l1 0.3 1.7 frand] mod
         ?Major choose n
     }
         
