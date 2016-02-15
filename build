@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# This could have been done (and was, at one point) with a cmake root
+# project, but then it became irksome to build just one part of the
+# project easily. This is very slightly slower, but not too bad.
+
+mkdir -p synth/build
+pushd synth/build
+cmake ..
+make
+popd
+
+mkdir -p test/synth/build
+pushd test/synth/build
+cmake ..
+make
+popd
+
+mkdir -p test/udp/build
+pushd test/udp/build
+cmake ..
+make
+popd
+
