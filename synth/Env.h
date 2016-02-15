@@ -52,12 +52,11 @@ public:
     // call after setlev/settime calls
     void prep(){
         // accumulate times
-        times[0]=acctimes[0];
+        acctimes[0]=times[0];
         for(int i=1;i<nlevs;i++){
-            times[i] = acctimes[i]-acctimes[i-1];
             if(times[i]<0)throw BadTimeException(genname);
             if(times[i]<0.001)times[i]=0.001;
-            acctimes[i]=acctimes[i-1]+times[i];
+            acctimes[i] = acctimes[i-1]+times[i];
         }
         /*
            for(int i=0;i<nlevs;i++){
@@ -75,7 +74,7 @@ public:
             int lev = k[1]-'0';
             if(lev>=nlevs)nlevs=lev+1;
             if(k[0]=='t')
-                acctimes[lev]=atof(v);
+                times[lev]=atof(v);
             else if(k[0]=='l')
                 levels[lev]=atof(v);
             return true;

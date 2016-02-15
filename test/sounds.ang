@@ -40,7 +40,7 @@ LFO->OSC2:fm
                  ] mod
         `ENVAMP [%
                  `t1 0.01 0.06 frand,
-                 `t2 0.1 0.2 frand,
+                 `t2 0.1 0.4 frand,
                  `l1 0.3 1.7 frand] mod
         ?Major choose n
     }

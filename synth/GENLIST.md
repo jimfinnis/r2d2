@@ -56,8 +56,8 @@ interpolated.
 ### params
 |name|function|default|
 |---|---|---|
-|tN|time of stage N (0-9)|none|
-|lN|level of stage N (0-9)|none|
+|tN|duration of stage N (0-9)|none|
+|lN|level at end of stage N (0-9)|none|
 
         
 ## mix2 (Utils.h)
