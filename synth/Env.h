@@ -42,12 +42,22 @@ public:
     }
     virtual ~Env(){}
     
+    
+    // call if we wish to replay the envelope
     void reset(){
         time=0;
         nextlev=0;
         done=false;
         prepped=false;
     }
+    
+    // call if we wish to redefine the envelope
+    void clear(){
+        reset();
+        nlevs=0;
+    }
+        
+        
     
     // call after setlev/settime calls
     void prep(){

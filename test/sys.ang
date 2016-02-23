@@ -25,7 +25,7 @@ include "sounds.ang" # User sounds
     ?light ?HBurble?`update@ !hburble
 ;    
     
-
+#`burble sounds$play
 
 run quit
 

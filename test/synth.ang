@@ -4,20 +4,80 @@
 
 [] 0 40 range each { 220.0 2.0 i 12.0 / pow *,}!Notes
 
-[0,2,4,5,7,9,11,12] (?Notes get) map !Major
+:mksc (?Notes get) map;
 
+[0,2,4,5,7,9,11] mksc !Major
+[0, 1, 3, 4, 5, 6, 8, 10] mksc !Span8
+[0, 1, 4, 6, 8, 10, 11] mksc !Enig
+
+:getsc |note,sc:sclen,oct| :"(notenumber scalelist -- freq)"
+    # calculate octave
+    ?sc len !sclen
+    0!oct
+    {
+        ?note 0 > ifleave
+        ?oct 1 - !oct
+        ?note ?sclen + !note
+    }
+    {
+        ?note ?sclen < ifleave
+        ?oct 1 + !oct
+        ?note ?sclen - !note
+    }
+    # get the frequency and modify by octave
+    ?note ?sc get 2 ?oct pow *
+;
 
 private
+# while private, the user sounds code has access to this
+# stuff.
+
+# Useful random number code.
 :randtimes |n:| 0 rand ?n % 1 + range;
 :choose |l:| rand ?l len % ?l get;
 :choosen |l,n:| [] ?n randtimes each {?l choose,};
-
-
 # uniform between a and b
 :frand |a,b:| rand 30000 % 30000.0 / ?b ?a - * ?a +;
 
 # N% chance of being true
 :coin |n:| rand 100 % ?n <;
+
+
+# from a list of [probability,thing] generate a function
+# which randomly returns a thing
+
+:mkchooser |list:total,t|
+    # first, we need to normalise, so total all probs
+    0!total ?list each {i fst tofloat ?total + !total}
+    
+    # now build a list of [cumulativenormalised,thing]
+    0!t
+    [] ?list each {
+        ?t i fst ?total / + !t
+        [?t,i snd],
+    } !t
+    
+    # and the function will use this list.
+    (|:r|
+        rand 30000 % 30000.0 / !r
+        ?t each {
+            ?r i fst <= if i snd stop then
+        }
+        ?t last snd # just in case
+    )
+;
+
+# generate a random walk using the start value and increments
+# from a mkchooser function
+:walk |p,n,f:| :"(start count chooser -- list)"
+    [?p]
+    0 ?n range each {
+        ?f@ ?p + !p
+        ?p,
+    }
+;
+
+
 
 # takes a generator name to modify, and a hash
 # of parameter,value for the parameters to change
@@ -28,7 +88,7 @@ private
 
 # play a note
 :n |freq:| ":" ?freq + ";" + synth$cmd;
-    
+
 
 public
 :play |name:| ?name ?Defs get snd @;

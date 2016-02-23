@@ -105,6 +105,28 @@ void Parser::parseNotes(){
     }
 }
 
+void Parser::parseEnv(GenDef *g){
+    char lbuf[]="lx",tbuf[]="tx";
+    for(int ct=0;ct<10;ct++){
+        lbuf[1]='0'+ct;
+        tbuf[1]='0'+ct;
+        float t = tok.getnextfloat();
+        if(tok.iserror())
+            throw UnexpectedException("time",tok.getstring());
+        float l = tok.getnextfloat();
+        if(tok.iserror())
+            throw UnexpectedException("level",tok.getstring());
+        g->setParam(tbuf,f2string(t));
+        g->setParam(lbuf,f2string(l));
+        
+        t = tok.getnext();
+        if(t==T_SEMICOLON || t==T_END)
+            break;
+        else if(t!=T_COMMA)
+            throw SyntaxException();
+    }
+}
+
 void Parser::parse(const char *buf){
     std::string a,b,c;
     int t;
@@ -122,10 +144,12 @@ void Parser::parse(const char *buf){
             a = getnextident();
             cursynth = new SynthDef();
             synths[a]=cursynth;
+            curgen = NULL;
             break;
         case T_S:
             a = getnextident();
             cursynth = synths[a];
+            curgen = NULL;
             break;
         case T_G:
             assertsynth();
@@ -134,7 +158,7 @@ void Parser::parse(const char *buf){
             curgen = cursynth->add(a,b);
             break;
         case T_M:
-            assertsynth();assertgen();
+            assertsynth();
             a = getnextident();
             curgen = cursynth->findGen(a);
             break;
@@ -182,27 +206,14 @@ void Parser::parse(const char *buf){
             assertsynth();
             a = getnextident();
             curgen = cursynth->add("env",a);
-            {
-                char lbuf[]="lx",tbuf[]="tx";
-                for(int ct=0;ct<10;ct++){
-                    lbuf[1]='0'+ct;
-                    tbuf[1]='0'+ct;
-                    float t = tok.getnextfloat();
-                    if(tok.iserror())
-                        throw UnexpectedException("time",tok.getstring());
-                    float l = tok.getnextfloat();
-                    if(tok.iserror())
-                        throw UnexpectedException("level",tok.getstring());
-                    curgen->setParam(tbuf,f2string(t));
-                    curgen->setParam(lbuf,f2string(l));
-                    
-                    t = tok.getnext();
-                    if(t==T_SEMICOLON || t==T_END)
-                        break;
-                    else if(t!=T_COMMA)
-                        throw SyntaxException();
-                }
-            }
+            parseEnv(curgen);
+            break;
+            // special syntax to redefine an Env
+        case T_MODENV:
+            assertsynth();assertgen();
+            if(strcmp(curgen->getName(),"env"))
+                throw Exception("expected an env to be current in modenv");
+            parseEnv(curgen);
             break;
         default:
             throw SyntaxException();

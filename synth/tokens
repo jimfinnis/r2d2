@@ -20,6 +20,7 @@
 
 newsynth : T_NEWSYNTH
 env : T_ENV
+modenv : T_MODENV
 s : T_S
 m : T_M
 g : T_G

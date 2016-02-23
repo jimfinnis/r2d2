@@ -66,7 +66,6 @@ private:
     GenDef *curgen;
     Stack stack;
     
-    
     Tokeniser tok;
     std::string getnextident(){
         if(tok.getnext()!=T_IDENT)
@@ -93,6 +92,8 @@ private:
     
     /// parse note sequences
     void parseNotes();
+    /// parse envelope generator steps
+    void parseEnv(GenDef *e);
 public:
     Parser();
     /// parse a bunch of commands

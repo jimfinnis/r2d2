@@ -38,6 +38,10 @@ public:
         doneMon=true;
     }
     
+    const char *getName(){
+        return name.c_str();
+    }
+    
     bool out; //!< set true if this is the output from the entire synth
     Gen *build();
 };
