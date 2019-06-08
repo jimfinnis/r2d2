@@ -10,6 +10,10 @@ public
 :znot 1 swap -;
 :zor |x,y:| ?x ?y > if ?x else ?y then;
 :zand |x,y:| ?x ?y < if ?x else ?y then;
+:zvery dup *;
+
+:zslightly |x:| ?x zvery znot ?x zand;
+
     
 # other useful operators
 :clip |x:| :"(x -- x clipped to between 0 and 1)"

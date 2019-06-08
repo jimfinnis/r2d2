@@ -91,12 +91,32 @@ emod -> sin2:amp
 
 # selects it and plays notes on it using the note language
 s bar
+
+
+# 400 is a note. 
+# semicolon pops off the stack, and builds a new note of that
+# and adds it. The 400 is left on the stack.
+
 :400 d ;
+
+# Let's look at this.
+# cmd       stack after and effect
+# -100      400 -100
+# 100       400 -100 100
+# r         400 (random from -100 to 100, call it x)
+# +         400+x
+# d         400+x,400+x (ie. duplicate)
+# ,         pop and play node
+#
+# 
+
 :100 100 r+d, 100 100 r+d;
-:-100 100 r+d, 100 100 r+d;
-:-100 100 r+d, 100 100 r+d;
-:-100 100 r+d, 100 100 r+d;
-:100 100 r+d, 100 100 r+d;
+
+
+:-100 100 r+d, -100 100 r+d;
+:-100 100 r+d, -100 100 r+d;
+:-100 100 r+d, -100 100 r+d;
+:-100 100 r+d, -100 100 r+d;
 
 # this demonstrates how to modify a synthdef with "m"
 # Change the sin1 PM and amp values:
